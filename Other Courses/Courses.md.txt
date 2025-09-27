@@ -1,0 +1,25 @@
+Control
+---------------
+Robust Control
+Data Driven Control System Desing
+Networked Control
+Vibration Control and Diagnostic of MEchanical Systems
+Advanced and Multivariable Control
+
+Aeronautical
+---------------------
+Aerodynamics
+Airplane performance and Dynamics
+Aerospace Control Systems
+Adaptive and Autonomous Aerospace Systems
+
+
+Maths 
+-------------------------------
+Stochastic Diferential Equations
+
+
+
+Automation 
+-------------------------
+Dynamics of Mechanical Systems
