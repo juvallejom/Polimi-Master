@@ -17,6 +17,8 @@ Adaptive and Autonomous Aerospace Systems
 Maths 
 -------------------------------
 Stochastic Diferential Equations
+Advanced Partial Differential Equations
+Numerical Analysis for partial Differential Equations 
 
 
 
