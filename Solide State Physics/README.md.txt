@@ -1,0 +1,3 @@
+- Read the Book 
+- Study what is REconstruction (Free electrons on the sirface of one solid)
+- Determine and udesrtand why the waveleng must be in the same order of a magnitute of the interatomic distance	
