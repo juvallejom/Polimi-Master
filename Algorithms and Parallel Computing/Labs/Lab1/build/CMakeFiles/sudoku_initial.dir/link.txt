@@ -1,0 +1,1 @@
+/usr/bin/g++ -Wall -Wextra -Wconversion -Wsign-conversion -g CMakeFiles/sudoku_initial.dir/sudoku_initial.cpp.o -o sudoku_initial 

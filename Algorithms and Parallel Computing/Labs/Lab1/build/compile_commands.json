@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/juan-pablo-vallejo/Documents/Polimi-Master/Algorithms and Parallel Computing/Labs/Lab1/build",
+  "command": "/usr/bin/g++   -Wall -Wextra -Wconversion -Wsign-conversion -g -std=gnu++11 -o CMakeFiles/sudoku_initial.dir/sudoku_initial.cpp.o -c \"/home/juan-pablo-vallejo/Documents/Polimi-Master/Algorithms and Parallel Computing/Labs/Lab1/sudoku_initial.cpp\"",
+  "file": "/home/juan-pablo-vallejo/Documents/Polimi-Master/Algorithms and Parallel Computing/Labs/Lab1/sudoku_initial.cpp",
+  "output": "CMakeFiles/sudoku_initial.dir/sudoku_initial.cpp.o"
+}
+]
