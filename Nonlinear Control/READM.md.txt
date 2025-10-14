@@ -1,0 +1,25 @@
+Prerequisits to this course
+ - Differential Equations
+ - Multivariable Calculus
+ - Linear Algebra
+ - Control Enginerring Course
+
+To review
+ - How works the feddback and the feedforward
+ -  CLarify Open Loop and Closed Loop
+ - Finite Escape Time
+ - Isolated Equilibrium points in linear sistems - Probe taht
+ - What is a determinstic system
+
+
+To Study Now
+
+
+To probe later
+ - Subharmomnic, harmonic and almost periodic oscillations
+ - Chaos (System Theory - Nonlinear Dynamics)
+ - Mupltiple Models Behaviour
+ - There is a definition in the slides of two dimension system page 8 where said that is an descroption z=Mx i dont get it 
+ - What is slow and fast eingenvector (i think i have the idea but is better to reasearch later)
+ - Watch how it works the expansion in Taylor and Mclaurin series to e^A when A is a matrix.
+

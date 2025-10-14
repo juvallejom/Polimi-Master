@@ -1,0 +1,2 @@
+Se puede decir que el supremo de una secion de fuciones es una funcion?
+Al parecer si el supremo de la sucesion seria la union de los supremos de las sucesiones punto a punto del conjuto

@@ -13,6 +13,13 @@ how C-condition probes that Lesbegue sigma algebra is complete
 - Try to undestand the theorem 8,1 and 8,2 of the notes.
 - Undestarnd the issue with the excersice 1 of the sheet n1. The part of the contraimage of the arctan and the part of the definition of C as a closed set
 is very antiintuite (oin the last time its make sense to me but i dont find a way to probe it)
+- Whats means taht f aunction is measurable (is simply thta the function is mapped from a mesarubale set to another one)
+- Proof of composition of lesbeigye mesaures
+- Concepts of Analysis 1 (Supremum, infimum, limsup and limifn)
+- I dont undestard the part o f the minimun and the maximum
+- What is an acommulation point
+
+
 
 
 	
