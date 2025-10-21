@@ -75,3 +75,47 @@ Let’s first refine your English (so you sound like the future mathematician yo
 
 A quick parenthesis: I want to become the best mathematician I can be.
 What is the most rigorous book on Real Analysis?
+
+_________________________________________________________
+Your original
+
+What i get i take the Jacobian in the equilobria and what give their characteristic polynomial
+
+✅ Corrected version
+
+What I do is take the Jacobian at the equilibrium point, and that gives the characteristic polynomial.
+
+💬 Explanation
+
+“What I get” → “What I do”
+→ You’re describing a procedure, not a result, so do fits better.
+
+“i” → “I” → always capitalized.
+
+“in the equilobria” → “at the equilibrium point”
+→ The correct preposition in math is at (we linearize at an equilibrium).
+→ Singular form equilibrium unless you mean several equilibria.
+
+“and what give” → “and that gives”
+→ Use that gives → correct relative clause and verb agreement.
+_______________________________________________________________________
+Your original
+
+in which book of advanced mathematical control we can find the definition of piecewise continuity
+
+✅ Corrected version
+
+In which book on advanced mathematical control can we find the definition of piecewise continuity?
+
+💬 Explanation
+
+Word order for questions:
+→ In English questions, the auxiliary verb (can, do, will, etc.) comes before the subject:
+“can we find” instead of “we can find.”
+
+Preposition:
+→ We say “book on advanced mathematical control”, not “of.”
+(on means “about / concerning”.)
+
+Capitalization:
+→ Sentences start with a capital letter: In which book...
