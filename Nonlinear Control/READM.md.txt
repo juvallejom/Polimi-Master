@@ -6,16 +6,35 @@ Prerequisits to this course
 
 To review
  - How works the feddback and the feedforward
- -  CLarify Open Loop and Closed Loop
+ - Clarify Open Loop and Closed Loop
  - Finite Escape Time
- - Isolated Equilibrium points in linear sistems - Probe taht
- - What is a determinstic system
+ - Isolated Equilibrium points in linear sistems - Probe that and understand very well all this stuff (What is an isolated equilibre point)
+ - Maybe do the excesrice or the demostration for me for the multiple equilibria tunnel-diode circuit 
+ - What is a determinstic system (math demostration)
+ - In the excersise (2 pres - page 29-30) there an circuit excesrsise(negative oscillator). I have two different questions
+	1. What is obtained by taking the Jacobian at the equilibrium point and what it means the characteristic polynomial of the Jacobian in the equilibria?
+	2. How i determine the orbit from the Jacobian
+- How works the mapping for a differential equation? What is the geometric interpretation?
+- Lipschitz continuity and continuous differentiability
+	1. What mean globally boundedn
+	2. What mens uniformly
+	3. I think i have to take more analisis courses
+
+
 
 Excersises 
  - The example of the second presentation page 21
+ - Do it multiple equilibria pendulum construction page 26 second presentaction
+ - Understand very well the excersise of the page 29-30 that corresponds to negative oscillator and the Van der Pol oscillator
+ - Search exercise of Lipschitz contiunty and diffeormosrphism
 
 
 To Study Now
+ - The lats consideration about Lipxchitz continuity in the (2 pres)
+ - Picewuse countinuity https://math.stackexchange.com/questions/1968943/whats-the-difference-between-continuous-and-piecewise-continuous-functions	
+ - Remark thge differentes of Lipchiztz condition on domain D and set D ??????? --- > Compacts set
+ - Finite Scape time
+ 
 
 
 To probe later
@@ -25,4 +44,27 @@ To probe later
  - There is a definition in the slides of two dimension system page 8 where said that is an descroption z=Mx i dont get it 
  - What is slow and fast eingenvector (i think i have the idea but is better to reasearch later)
  - Watch how it works the expansion in Taylor and Mclaurin series to e^A when A is a matrix.
+ - What is a separatrix
+ - Robustenss and amplitude stattements for the linear oscillator (pres 2 page 29)
+ - Convexity for rn --> rn 
+ - Undestarnd all the things that envolves continuity and Lipschitz proof
+
+Thins to take in count
+ - sign(v) is a sing fubnction. Search in google (1 if  x>0, -1 if x<0 ,0 if x=0)
+
+Conclusions
+- A linear system xdot = AX has a isolated equilibria points or a continuum equilibria
+
+
+
+____________________________________________
+REVIEW OF LECTURES
+23/09/25
+ - Lipschitz continuously definiton (locally, in compact set , global)
+ - Lipschitz continuity and countinuos differetniability
+ - Example of Lipschitz
+ - Unique solution by Lipschitz  and example
+ - Changes of variables
+ - Diffeomorphism
+
 
