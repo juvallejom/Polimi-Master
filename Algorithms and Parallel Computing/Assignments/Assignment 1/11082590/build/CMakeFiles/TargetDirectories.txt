@@ -1,0 +1,4 @@
+/home/juan-pablo-vallejo/Documents/Polimi-Master/Algorithms and Parallel Computing/Assignments/Assignment 1/11082590/build/CMakeFiles/main.dir
+/home/juan-pablo-vallejo/Documents/Polimi-Master/Algorithms and Parallel Computing/Assignments/Assignment 1/11082590/build/CMakeFiles/distclean.dir
+/home/juan-pablo-vallejo/Documents/Polimi-Master/Algorithms and Parallel Computing/Assignments/Assignment 1/11082590/build/CMakeFiles/edit_cache.dir
+/home/juan-pablo-vallejo/Documents/Polimi-Master/Algorithms and Parallel Computing/Assignments/Assignment 1/11082590/build/CMakeFiles/rebuild_cache.dir
