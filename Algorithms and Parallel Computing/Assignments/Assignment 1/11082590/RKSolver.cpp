@@ -118,18 +118,15 @@ Rnvector RKSolver::single_step(const double tn, const Rnvector &un,
 {   
 
 
-    SolutionType k;                          // (Vector of vectors) k that stores each stage vector ki
-    Rnvector kn;                             // stage vector kn for stage i
-    Rnvector un1(un.size(),0.0);                 // un+1
-    Rnvector sum(un.size(),0.0);             // Sum(bi*ki)
-    EquationFunction &f = equation.get_f();  // ODE
-    //std::size_t valor = equation.get_dimension();
-    //std::cout<<"Dimesion"<<valor<<std::endl;
-
+    SolutionType k;                                // (Vector of vectors) k that stores each stage vector ki
+    Rnvector kn;                                   // Stage vector kn for stage i
+    Rnvector un1(un.size(),0.0);                   // un+1
+    Rnvector sum(un.size(),0.0);                   // Sum(bi*ki)
+    EquationFunction &f = equation.get_f();        // ODE
     for (size_t i=0;i<n_stages;++i){
         //std::cout<<"=== ITERATION "<<i<<" - tn: "<<tn<<"- hn :"<<hn<<" ==="<<std::endl;
         size_t j=0;
-        Rnvector s(un.size(),0.0); // si - Sum of aij*ki
+        Rnvector s(un.size(),0.0);                 // Si - Sum of aij*ki
         while(j<i){
             //std::cout<<"Stage j: "<<j<<" - i: "<<i<< " -- Size of s: " << s.size() << ", k: " << k[j].size()<<std::endl;
             s=s+a[i][j]*k[j];
@@ -137,6 +134,7 @@ Rnvector RKSolver::single_step(const double tn, const Rnvector &un,
         }
         if(a[i][i]!=0){
             std::cout<<"0"<<std::endl;
+            kn =  fixed_point(f,tn,un,hn,s,i);     
         }
         else{
             /*std::cout << "un : " << un.size()<< "[";
@@ -157,14 +155,12 @@ Rnvector RKSolver::single_step(const double tn, const Rnvector &un,
     }
     //std::cout <<"===END OF ITERATIONS"<<std::endl;
     for (size_t i =0;i<n_stages;i++){
-        std::vector<double> ksol;
         sum = sum + b[i]*k[i];
         /*std::cout << "[ ";
             for (double val : sum) {
                 std::cout << val << " ";
             }
             std::cout << "]" << std::endl;
-
             for (size_t ki = 0; ki < k.size(); ++ki) {
                 std::cout << "Fila " << ki << ": ";
                 for (size_t kj = 0; kj < k[i].size(); ++kj) {
@@ -172,55 +168,39 @@ Rnvector RKSolver::single_step(const double tn, const Rnvector &un,
                 }
                 std::cout << std::endl;
             }*/
-    }
-
-        
+    }        
     //std::cout<<sum[0]<<std::endl;
     un1 = un  + hn*sum;
-    //std::cout<<"un+1: "<<un1[0]<<std::endl;
-
+    //std::cout<<"un+1: "<<un1[0]<<<<std::endl;
     return un1;
-    // Your code goes here
     // N.B.: the initial condition (t_0, u_0) has already been included in the
     // `times` and `solution` vectors by the class constructor (see above)
 }
 
 void RKSolver::solve()
 {
-    size_t n = 0;
-    double t0 = equation.get_tin();
-    double tf = equation.get_tfin();
-    double *n_diff;
-    double *n_un;
-    double En;
-    double t = equation.get_tin();
-    double hn = h;
-    Rnvector u = equation.get_x0();
+    size_t n = 0;                       // Iterator
+    double t0 = equation.get_tin();     // to - initial time
+    double tf = equation.get_tfin();    // tf - final time
+    double hn = h;                      // step hn (in n=0, the step is equal to the intial step h)
+    double *n_diff; double *n_un;       // doubles for Error calc
+    double En;                          //
     Rnvector uhn;
     Rnvector uhn2;
     std::vector<double> diff_un;
-    std::vector<double> un1;
-    std::vector<double> un2;
-    std::vector<double> unaux;
-    //uhn = single_step(t,u,hn/2);
-    while(t<=tf){
-    //while(0<n){
-        std::vector<double> abs_un;
-        unaux.clear();
-        unaux.push_back(u[n]);
-        uhn = single_step(t,u,hn);
-        uhn2 = single_step(t+hn/2,single_step(t,u,hn/2),hn/2);
+    while(times[n]+hn<=tf){
+        Rnvector abs_un;
+        uhn = single_step(times[n],solution[n],hn);
+        uhn2 = single_step(times[n]+hn/2,single_step(times[n],solution[n],hn/2),hn/2);
         diff_un = abs(uhn2 -uhn);
         n_diff = std::max_element(diff_un.data(),diff_un.data()+diff_un.size());
-        abs_un= abs(u);
+        abs_un= abs(solution[n]);
         n_un = std::max_element(abs_un.data(),abs_un.data()+abs_un.size());
         En= *n_diff/(*n_un);
-        std::cout<<"n: "<<n<<" - t: "<<t<<" - U: "<<u[0]<<" - un: "<<uhn[0]<<" - uhn/2: "<<uhn2[0]<<" - hn: "<<hn<<" - hmin: "<<hmin<<" - En: "<<En<<" - Tolerancia: "<<tol/2<<" - Tolerancia 2^n+1: "<<tol/(pow(2,n_stages+1))<<std::endl;
+        std::cout<<"n: "<<n<<" - t: "<<times[n]<<" - U: "<<solution[n][0]<<" - un: "<<uhn[0]<<" - uhn/2: "<<uhn2[0]<<" - hn: "<<hn<<" - hmin: "<<hmin<<" - En: "<<En<<" - Tolerancia: "<<tol/2<<" - Tolerancia 2^n+1: "<<tol/(pow(2,n_stages+1))<<std::endl;
         if (En<tol/2 || hn<hmin){
-            t = t+hn;
-            u = uhn2;
-            solution.push_back(u);
-            times.push_back(t);
+            solution.push_back(uhn2);
+            times.push_back(times[n]+hn);
             if(En<(tol/(pow(2,n_stages+1)))){
                 hn=2*hn;
             }
@@ -230,18 +210,9 @@ void RKSolver::solve()
             hn = hn/2;
         }
     }
-    double hnf = hn;
-    hn = tf-(t-hnf);
+    hn = tf-times[n];
     if (hn>(tf-t0)/pow(10,3)){
-        t= tf;
-        unaux.clear();
-        unaux.push_back(u[n-1]);
-        un1 = single_step(t-hnf,unaux,hn/2);
-        un2 = single_step(t-hnf+hn/2,un1,hn/2);
-        std::cout<<t<<" --- hn -- "<<hn<<" un1 "<<un2[0]<<"----  "<<u[n-1]<<"----  "<<unaux[0]<<std::endl;
+        times.push_back(tf);
+        solution.push_back(single_step(times[n]+hn/2,single_step(times[n],solution[n],hn/2),hn/2));
     }
-
-
-    
-    // Your code goes here
 }
