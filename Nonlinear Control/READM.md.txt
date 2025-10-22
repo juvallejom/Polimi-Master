@@ -8,7 +8,7 @@ To review
  - How works the feddback and the feedforward
  - Clarify Open Loop and Closed Loop
  - Finite Escape Time
- - Isolated Equilibrium points in linear sistems - Probe that and understand very well all this stuff (What is an isolated equilibre point)
+ - Isolated Equilibrium points in linear sistems - Prove that and understand very well all this stuff (What is an isolated equilibre point)
  - Maybe do the excesrice or the demostration for me for the multiple equilibria tunnel-diode circuit 
  - What is a determinstic system (math demostration)
  - In the excersise (2 pres - page 29-30) there an circuit excesrsise(negative oscillator). I have two different questions
