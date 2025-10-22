@@ -133,7 +133,6 @@ Rnvector RKSolver::single_step(const double tn, const Rnvector &un,
             j++;
         }
         if(a[i][i]!=0){
-            std::cout<<"0"<<std::endl;
             kn =  fixed_point(f,tn,un,hn,s,i);     
         }
         else{
@@ -184,7 +183,7 @@ void RKSolver::solve()
     double tf = equation.get_tfin();    // tf - final time
     double hn = h;                      // step hn (in n=0, the step is equal to the intial step h)
     double *n_diff; double *n_un;       // doubles for Error calc
-    double En;                          //
+    double En;                          // Error
     Rnvector uhn;
     Rnvector uhn2;
     std::vector<double> diff_un;

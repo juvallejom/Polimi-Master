@@ -33,9 +33,9 @@ void run_test(char const * method_name, char const * test_number)
         std::cout << std::endl << "Running Test 2" << std::endl << std::endl;
         fun_ptr = new EquationFunction;
         initial_time = 0;
-        final_time = 1;
-        initial_condition.push_back( 0 );
-        initial_condition.push_back( 0 );
+        final_time = 3;
+        initial_condition.push_back( 1 );
+        initial_condition.push_back( 1 );
     }
 
     else
