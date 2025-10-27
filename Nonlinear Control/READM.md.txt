@@ -19,7 +19,627 @@ To review
 	1. What mean globally boundedn
 	2. What mens uniformly
 	3. I think i have to take more analisis courses
+- Proof of Lyapunov Functin
+- Derivates of vectorial fucntions and matricial functiosn	
+- How works the matrix operations and all this stuff like quadratic operators 
+- Explain why the energy function of the pendulum has this form ( i know why is this form but i what to undestratn the conditones, where is defined the point od 
+reference fot that system, the mass and the lenght of the arm and the pendulum is 1??? The nangle x1 is taken from x asix or y axis)
+- Undstran very well dthe concept of derivate along a vector or a trajectory
+- Atratticvness of the origin in the example of the pendulum with damping (b>0)
 
+____________________________________________
+Excelente 🔥 — esa es la pregunta profunda detrás de todo el método de Lyapunov.
+No siempre 
+𝑉
+(
+𝑥
+)
+V(x) es la energía del sistema… pero en muchos casos la elegimos para que se comporte como si lo fuera.
+Vamos a ver por qué, cómo se justifica físicamente, y cómo se construye 👇
+
+🔹 1. Contexto: el sistema dinámico
+
+Supongamos que tenemos un sistema físico o matemático no lineal:
+
+𝑥
+˙
+=
+𝑓
+(
+𝑥
+)
+,
+x
+˙
+=f(x),
+
+y queremos saber si el equilibrio en 
+𝑥
+=
+0
+x=0 es estable.
+
+Resolver 
+𝑥
+(
+𝑡
+)
+x(t) directamente puede ser muy difícil (o imposible).
+La idea de Lyapunov es encontrar una función escalar 
+𝑉
+(
+𝑥
+)
+V(x) que cumpla un papel parecido al de una energía total.
+
+🔹 2. Idea central: la analogía con energía
+
+En física, los sistemas conservativos (como un péndulo, un resorte, o una masa)
+tienen una energía total compuesta por:
+
+𝐸
+=
+𝑇
++
+𝑈
+,
+E=T+U,
+
+donde:
+
+𝑇
+T = energía cinética → depende de las velocidades,
+
+𝑈
+U = energía potencial → depende de las posiciones.
+
+Y la derivada temporal cumple:
+
+𝐸
+˙
+=
+𝑇
+˙
++
+𝑈
+˙
+=
+0
+(sistema sin p
+e
+ˊ
+rdidas).
+E
+˙
+=
+T
+˙
++
+U
+˙
+=0(sistema sin p
+e
+ˊ
+rdidas).
+
+o 
+𝐸
+˙
+<
+0
+E
+˙
+<0 si hay amortiguamiento (pérdida de energía → estabilidad).
+
+🔹 3. Ejemplo: el péndulo simple amortiguado
+
+Sistema:
+
+𝑥
+˙
+1
+=
+𝑥
+2
+,
+𝑥
+˙
+2
+=
+−
+sin
+⁡
+(
+𝑥
+1
+)
+−
+𝑏
+𝑥
+2
+.
+x
+˙
+1
+	​
+
+=x
+2
+	​
+
+,
+x
+˙
+2
+	​
+
+=−sin(x
+1
+	​
+
+)−bx
+2
+	​
+
+.
+
+Aquí:
+
+𝑥
+1
+x
+1
+	​
+
+: ángulo → posición,
+
+𝑥
+2
+x
+2
+	​
+
+: velocidad angular.
+
+Definimos:
+
+𝑉
+(
+𝑥
+)
+=
+(
+1
+−
+cos
+⁡
+𝑥
+1
+)
++
+1
+2
+𝑥
+2
+2
+.
+V(x)=(1−cosx
+1
+	​
+
+)+
+2
+1
+	​
+
+x
+2
+2
+	​
+
+.
+
+Entonces:
+
+1
+−
+cos
+⁡
+𝑥
+1
+1−cosx
+1
+	​
+
+ se comporta como energía potencial (mínima en 
+𝑥
+1
+=
+0
+x
+1
+	​
+
+=0).
+
+1
+2
+𝑥
+2
+2
+2
+1
+	​
+
+x
+2
+2
+	​
+
+ es energía cinética.
+
+Por eso:
+
+𝑉
+(
+𝑥
+)
+=
+𝑈
+(
+𝑥
+1
+)
++
+𝑇
+(
+𝑥
+2
+)
+=
+𝐸
+total
+.
+V(x)=U(x
+1
+	​
+
+)+T(x
+2
+	​
+
+)=E
+total
+	​
+
+.
+🔹 4. Comprobamos la derivada de 
+𝑉
+V
+𝑉
+˙
+=
+sin
+⁡
+𝑥
+1
+𝑥
+˙
+1
++
+𝑥
+2
+𝑥
+˙
+2
+=
+sin
+⁡
+𝑥
+1
+𝑥
+2
++
+𝑥
+2
+(
+−
+sin
+⁡
+𝑥
+1
+−
+𝑏
+𝑥
+2
+)
+=
+−
+𝑏
+𝑥
+2
+2
+≤
+0.
+V
+˙
+=sinx
+1
+	​
+
+x
+˙
+1
+	​
+
++x
+2
+	​
+
+x
+˙
+2
+	​
+
+=sinx
+1
+	​
+
+x
+2
+	​
+
++x
+2
+	​
+
+(−sinx
+1
+	​
+
+−bx
+2
+	​
+
+)=−bx
+2
+2
+	​
+
+≤0.
+
+💡 Interpreta esto:
+
+𝑉
+V disminuye con el tiempo (
+𝑉
+˙
+≤
+0
+V
+˙
+≤0):
+la energía del sistema se disipa por el amortiguamiento.
+
+Por tanto, los estados 
+𝑥
+1
+,
+𝑥
+2
+x
+1
+	​
+
+,x
+2
+	​
+
+ se acercan al equilibrio.
+
+🔹 5. Generalización: por qué Lyapunov “imita” la energía
+
+No todos los sistemas tienen una energía física clara,
+pero Lyapunov propuso que podemos construir una función 
+𝑉
+(
+𝑥
+)
+V(x) que se comporte como una energía:
+
+{
+𝑉
+(
+𝑥
+)
+>
+0
+	
+(energ
+ı
+ˊ
+a positiva salvo en el equilibrio)
+,
+
+
+𝑉
+˙
+(
+𝑥
+)
+<
+0
+	
+(energ
+ı
+ˊ
+a decrece con el tiempo)
+.
+{
+V(x)>0
+V
+˙
+(x)<0
+	​
+
+(energ
+ı
+ˊ
+a positiva salvo en el equilibrio),
+(energ
+ı
+ˊ
+a decrece con el tiempo).
+	​
+
+
+👉 Si una cantidad escalar 
+𝑉
+(
+𝑥
+)
+V(x) nunca aumenta, el sistema “pierde energía”
+→ y por tanto los estados deben acercarse al punto donde la energía es mínima (el equilibrio).
+
+🔹 6. Cuándo 
+𝑉
+V es literalmente la energía
+
+En sistemas mecánicos: 
+𝑉
+=
+𝑇
++
+𝑈
+V=T+U.
+
+En sistemas eléctricos: 
+𝑉
+=
+1
+2
+𝐿
+𝑖
+2
++
+1
+2
+𝐶
+𝑣
+2
+V=
+2
+1
+	​
+
+Li
+2
++
+2
+1
+	​
+
+Cv
+2
+.
+
+En sistemas generalizados lineales: 
+𝑉
+=
+1
+2
+𝑥
+⊤
+𝑃
+𝑥
+V=
+2
+1
+	​
+
+x
+⊤
+Px
+se interpreta como una energía generalizada, porque 
+𝑃
+≻
+0
+P≻0 define una métrica (una forma cuadrática positiva).
+
+🔹 7. En resumen
+Concepto	Interpretación
+
+𝑉
+(
+𝑥
+)
+V(x)	Función de “energía generalizada”
+
+𝑉
+(
+𝑥
+)
+>
+0
+V(x)>0	Energía positiva salvo en el equilibrio
+
+𝑉
+˙
+(
+𝑥
+)
+≤
+0
+V
+˙
+(x)≤0	Energía decreciente (sistema disipativo → estable)
+
+𝑉
+˙
+(
+𝑥
+)
+=
+0
+V
+˙
+(x)=0	Energía constante (sistema conservativo)
+
+𝑉
+˙
+(
+𝑥
+)
+>
+0
+V
+˙
+(x)>0	Energía aumenta (inestable)
+💬 En pocas palabras
+
+𝑉
+(
+𝑥
+)
+V(x) no tiene que ser literalmente la energía física,
+pero cumple el mismo papel matemático: una cantidad escalar que mide cuán lejos está el sistema del equilibrio, y cuya variación temporal te dice cómo evoluciona el sistema.
+
+¿Quieres que te muestre cómo construir una 
+𝑉
+(
+𝑥
+)
+V(x) paso a paso para un sistema que no tiene una energía física evidente (por ejemplo, un sistema no lineal cualquiera 
+𝑥
+˙
+=
+𝑓
+(
+𝑥
+)
+x
+˙
+=f(x))?________________________________________________________________ 	
 
 
 Excersises 
@@ -27,6 +647,9 @@ Excersises
  - Do it multiple equilibria pendulum construction page 26 second presentaction
  - Understand very well the excersise of the page 29-30 that corresponds to negative oscillator and the Van der Pol oscillator
  - Search exercise of Lipschitz contiunty and diffeormosrphism
+ - Do excersice of change of variables Slide 5 - page 6
+ - Do the pendulum example of the slide 5 page 16
+ - Do Excersie of definite matrix slide 5 page 33
 
 
 To Study Now
@@ -34,6 +657,18 @@ To Study Now
  - Picewuse countinuity https://math.stackexchange.com/questions/1968943/whats-the-difference-between-continuous-and-piecewise-continuous-functions	
  - Remark thge differentes of Lipchiztz condition on domain D and set D ??????? --- > Compacts set
  - Finite Scape time
+ - Time invariante and equlibria in slide 2 
+ - What's up with a f(x,t) such that f>0 in x<xo-h (h>0) (left side of equilibrum in this case 0), f>0 in x>xo. Finally there is a equilibrium zone f=0 in
+(x0-h,x0). In x0, the system is equilibrium? Because in the right side of x0 the system is unstable. IMPORTANT
+ - Why in tthe image the secodnr row violets attarctive (but the piint is stable)
+ - Whats the difference between stable and attractive.
+ - How lgloblly asymptocucally stabulity of an equilibrium pint said to me that there is only a unuieq solution for f(x)
+ - Undesrtand very well the radiallu unbounded of the quadratic Lyapunov Function (slides 5 page 30)
+ - Undesrtand what is a the principal submatrices . I undertand that is the "intersection" of the the rows and the columns of the same index. One of them 
+is the "intersection" of row 1 and column 1 that is only the position 1,1. Other, is the intersection of row 1,2 with  column 1,2 and it will be a matrix with positions
+1,1 1,2 2,1 2,2
+ - Undesrtan very weel the la salle invariance principle
+
  
 
 
@@ -67,4 +702,18 @@ REVIEW OF LECTURES
  - Changes of variables
  - Diffeomorphism
 
+26/09/25
+ - Stability of Equilibria (Stable, attractive, asymtotically stable, globally asymto. stable and globally attratcive points)
+ - Exponential Stability
+ - Lyapunov Indirect Methods
+ - Lyapunov Functions
+ - Global stability via Lyapunov Functios
 
+30/09/25 
+ - Positive definite, semidefinite and negative
+ - Other perspective of the Lyapunov Theorem
+ - Examples
+ - Quadratic Form and Quadratic Lyapunov Functions
+ - Lyapunvof function as Energy Function (see this notes)
+ - Intuition behind invariance principle
+ - La Salle invariance principle and example
