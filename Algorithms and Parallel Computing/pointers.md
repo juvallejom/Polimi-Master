@@ -26,12 +26,6 @@ In this way, the pointer “points” to the memory location of another variable
 
 <i>This is a lower level feature bring form C </i>
 
-Every variable, object or piece of ingomraiton on our code is stored in memory for any progaming language.
-
-Each memeory location has a physical address and:
- - the name of the variable indicates the contents of the memory location
- - the operator & allows to obtain the momery address of the location associadted with the variable to wich the operator is applied
-
  See image from slides 2 (pointers) page 3  
 
  Pointers  --- think like an integer (can i do opoertations with pointers??)
