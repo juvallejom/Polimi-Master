@@ -668,6 +668,7 @@ To Study Now
 is the "intersection" of row 1 and column 1 that is only the position 1,1. Other, is the intersection of row 1,2 with  column 1,2 and it will be a matrix with positions
 1,1 1,2 2,1 2,2
  - Undesrtan very weel the la salle invariance principle
+ - Passivity
 
  
 
@@ -690,6 +691,181 @@ Thins to take in count
 Conclusions
 - A linear system xdot = AX has a isolated equilibria points or a continuum equilibria
 
+
+
+Excelente pregunta 🔥 — y muy profunda, porque detrás de eso hay una diferencia matemática clara en cómo se comportan los elementos frente a la energía.
+
+Vamos paso a paso 👇
+
+⚡️ 1️⃣ Definiciones físicas básicas
+
+Fuente activa → puede entregar energía al circuito.
+
+Elemento pasivo → solo disipa o almacena energía, nunca la genera.
+
+Pero eso también se puede expresar matemáticamente, a partir de la potencia instantánea:
+
+𝑝
+(
+𝑡
+)
+=
+𝑣
+(
+𝑡
+)
+⋅
+𝑖
+(
+𝑡
+)
+p(t)=v(t)⋅i(t)
+
+donde 
+𝑣
+(
+𝑡
+)
+v(t) es la tensión en el elemento y 
+𝑖
+(
+𝑡
+)
+i(t) la corriente que pasa por él.
+
+⚙️ 2️⃣ Elemento pasivo
+
+Un elemento es pasivo si la energía neta entregada al exterior nunca es positiva, es decir, no puede generar energía.
+Formalmente:
+
+∫
+−
+∞
+𝑡
+𝑝
+(
+𝜏
+)
+ 
+𝑑
+𝜏
+≥
+0
+∀
+𝑡
+∫
+−∞
+t
+	​
+
+p(τ)dτ≥0∀t
+
+Esto significa que la energía absorbida (área bajo 
+𝑝
+(
+𝑡
+)
+p(t)) es siempre positiva o cero → nunca entrega energía neta.
+👉 Ejemplo: una resistencia cumple 
+𝑣
+=
+𝑅
+𝑖
+v=Ri, por tanto 
+𝑝
+=
+𝑣
+𝑖
+=
+𝑅
+𝑖
+2
+≥
+0
+p=vi=Ri
+2
+≥0.
+Siempre disipa potencia → pasiva.
+
+⚡️ 3️⃣ Elemento activo
+
+Un elemento es activo si puede entregar energía al circuito, o sea:
+
+∫
+−
+∞
+𝑡
+𝑝
+(
+𝜏
+)
+ 
+𝑑
+𝜏
+<
+0
+∫
+−∞
+t
+	​
+
+p(τ)dτ<0
+
+en algún intervalo de tiempo.
+
+Es decir, hay momentos donde la potencia 
+𝑝
+(
+𝑡
+)
+p(t) es negativa → está entregando energía.
+👉 Ejemplo: una fuente de tensión mantiene 
+𝑣
+(
+𝑡
+)
+v(t) aunque el circuito demande corriente 
+𝑖
+(
+𝑡
+)
+i(t).
+Si la corriente sale del terminal positivo, 
+𝑝
+=
+𝑣
+𝑖
+<
+0
+p=vi<0.
+Entonces está suministrando energía → activa.
+
+🧩 4️⃣ En resumen
+Tipo de elemento	Condición matemática	Ejemplo	Comportamiento
+Activo	
+𝑝
+(
+𝑡
+)
+=
+𝑣
+𝑖
+<
+0
+p(t)=vi<0 (en algún instante)	Fuente de tensión / corriente	Entrega energía
+Pasivo	
+𝑝
+(
+𝑡
+)
+=
+𝑣
+𝑖
+≥
+0
+p(t)=vi≥0 (siempre)	Resistencia, condensador, bobina	Consume o almacena energía
+
+¿Quieres que te dé la misma explicación en inglés técnico, como para ponerla en tus notas de electrónica o física del estado sólido?
 
 
 ____________________________________________
@@ -717,3 +893,16 @@ REVIEW OF LECTURES
  - Lyapunvof function as Energy Function (see this notes)
  - Intuition behind invariance principle
  - La Salle invariance principle and example
+
+
+10/10/25
+ -  SOS Examples ans finish this topic
+ - Passivity
+ - Memoryless functions
+ - Passive input/output and lossless 
+ - RLC Cirtcuit Example
+
+14/10/25
+ - Kinds od passivity
+ - Examplses of Passivity
+ - Passivity and stabilty ( I dont undesrtand very weell this ot stability and observaniliyy)

@@ -15,3 +15,10 @@ Dictionary of concepts that has to be clear for me
  - Unit Cell 
  - Reciprocal Space
  - 
+
+
+_________________________________________________________________________
+Recap lectures....
+
+
+02/10/2025 
