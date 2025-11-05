@@ -10,7 +10,7 @@
 # 1. Pointers
 
 ## 1.1 Definition.
-
+<div align="justify">
 A <strong>pointer</strong> is a variable whose value is the address of another variable (or object) in memory. Instead of holding a direct value (like <code>int x = 5;</code>), a pointer holds the location in memory where that value is stored.
 
 <i style="color:#2E86C1;">Intuitive Idea</i>
@@ -21,111 +21,343 @@ That location has a unique memory address.
 - The variable name refers to the contents stored at that address.
 - The address-of operator (&) allows us to obtain the memory address of a variable or object.
 
+![Pointer Diagram](Images/pointer.png)
+
+
+<div style="text-indent: 30px;"> 
+
+  - <i><code>var</code> indicates the content of the memory location.</i>
+  - <i><code>&var</code> indicates the memory address.</i>
+</div>
+
 A pointer is a special variable that can store such an address.
-In this way, the pointer “points” to the memory location of another variable — it doesn’t hold a value directly, but rather the location of that value.
+In this way, the pointer “points” to the memory location of another variable — <strong>it doesn’t hold a value directly, but rather the location of that value.</strong>
 
 <i>This is a lower level feature bring form C </i>
 
- See image from slides 2 (pointers) page 3  
+<i style="color:#2E86C1;">Declaration</i>
+
+To declare a pointer, you must also specify what type of object the pointer points to. This tells the compiler what kind of data is stored at the address the pointer refers to. 
+
+A pointer’s type determines how the memory referred to by the pointer’s value is interpreted and used.
+
+````cpp
+double* p;   // p is a pointer to a double
+````
+<div style="text-indent: 30px;color:#FF0000;">
+<i>Invalid pointer initialization.</i>
+</div>
+
+<br>
+
+````cpp
+int* p = 5;   //  Error
+````
+
+This is wrong because 5 is a number, not a memory address. Pointers store addresses, not normal values. We must assign a <strong>valid address (like &x) or use nullptr if it doesn’t point anywhere yet.</strong>
+
+
+## 1.2 Dereference Operator (*)
+
+The dereference operator (*) is used in C++ to access or modify the value stored at the memory address a pointer is pointing to. It allows you to <strong>retrieve or change</strong> the value of a variable indirectly through its pointer.
+
+<i style="text-indent: 30px;color:#FF0000;">WARNING: The symbol * is used both in the declaration and in the dereferencing </i>
+
+<strong>This is the correct way.</strong>
+
+````cpp
+int x = 5;
+int* p = &x;   // p stores the address of x
+*p = 7;        // change the variable x to 7 .    
+p = 7;         // ERROR, p is a pointer. We´re assign it a integer not a direction.
+cout << *p;    // prints 7 (value of x)
+cout << p;     // prints address of x (e.g., 0x7ffee2b4a)
+````
+
+A pointer variable typically requires 2 or 4 bytes, depending on the system architecture (and sometimes 8 bytes on 64-bit systems). What’s stored in a pointer is a memory address, not a normal value.
+
+## 1.3 Operators
+
+![Pointer Operations](Images/pointer2.png)
+
+<i>Stage 1</i>
+
+- Two variables are defined: x (of type <code>int</code>) and p (of type <code>int*</code>). Both have an address and a value.
+The value of p is the memory address of x — that is, the address of the variable it points to.
+In this example, that memory address is 2.
+
+<i>Stage 2</i>
+
+- The expression <code>*p=7</code> changes the value of the variable that the pointer points to.
+In this example, the value of x changes from 5 to 7.
+
+</div>
+
+//////////////////////////////////////////////////////
 
  Pointers  --- think like an integer (can i do opoertations with pointers??)
   -Variable which store memory address
-  - To declare a pointer you must  also specify what type of object tje pointer points to 
-
-
-   syntax = double *p   // it means p is a pointer.
-   if p is a pointer to an integer, then *p is a simple integer value.
-
-   *p = 5
-   p is the direction of this element
-
-   then p = 5 is an error beacuse p is a memory address
-
-The dereference operator (*) is used in C++ to access the value stored at the memory address a pointer is pointing to. It allows you to retrieve or modify the value of the variable indirectly through its pointer.
-
-
-  A pointer variable usually requires 2 bytes or 4 bytes  depending  on the architecture
-
-
-We can store in a pinter variable the address of another variable .Ssee slide 2 page 6 for image.   
-
-p will point  to the memory  area where the value  of x is  stored
-
-A point types  determines how the memory reffered to by  the pointer's value is used
-
 
 See exmplae page 7 
 What is the difference between & and *
 
 Be careful where the pinter is pointing :v
 
+////////////////////////////////////////////////////
 
-FUNCTION PARAMETERS
 
-return_type name (formal arguments); // a declaration
-return_type name (formal arguments){...}; // a definition
+# 2. References.
 
-formal arguments ---> parameters
+A reference in C++ can be seen as an <strong>automatically dereferenced pointer</strong> or as an alternative name for an existing object.
 
-void ---> does not return a value
+A reference is introduced using the & symbol in a variable declaration.and must be initialized when it is declared.
 
+After initialization, a reference cannot be changed to refer to another object
+
+````cpp
+int x = 9;
+int y = 8;
+int& r = x;   // r refers to x
+````
+In this example, r becomes an alias for x. Any modification made through r will affect x directly.
+
+<i style="color:#2E86C1;">Reference Binding and Behavior</i>
+
+When we initialize a variable, the value of the initializer is copied into the new object. When we define a reference, <strong>instead of copying the value, we bind the reference to its initializer.</strong>
+
+<strong>Once initialized, a reference remains permanently bound to the same object, then
+there is no way to rebind it to a different one.</strong>
+
+Because of this, references must always be initialized at declaration.
+
+<i style="color:#2E86C1;">Accessing and Using References</i>
+
+When we fetch the value of a reference, we are actually accessing the value of the object it is bound to. When we use a reference as an initializer, we are really using the object itself, not a copy.
+
+<i style="color:#2E86C1;">When use references or pointers.</i>
+
+Like other built-in types, pointers have undefined value if they are not 
+initialized.  Be very careful !!
+
+
+| **Property**           | **Pointer**                                              | **Reference**                                    |
+| ---------------------- | -------------------------------------------------------- | ------------------------------------------------ |
+| **Definition**         | A variable that stores the *address* of another variable | An alias (alternative name) for another variable |
+| **Initialization**     | Optional; can be uninitialized (⚠️ dangerous)            | Must be initialized at declaration               |
+| **Can change target?** | ✅ Yes — can point to different objects                   | ❌ No — fixed after initialization                |
+| **Access syntax**      | `*p` (dereference)                                       | Automatically dereferenced                       |
+| **Can be null?**       | ✅ Yes (`nullptr`)                                        | ❌ No                                             |
+| **Memory storage**     | Is an object itself                                      | Is not a separate object                         |
+| **Typical use**        | Dynamic memory, arrays, low-level manipulation           | Safer parameter passing and aliasing             |
+
+
+Both pointers and references let you access and modify variables indirectly (via their memory address),
+but references exist to make this simpler, safer, and less error-prone in most everyday cases.
+
+
+With pointers:
+````cpp
+int x = 10;
+int* p = &x;
+*p = 20;    // must dereference manually
+````
+
+With references:
+````cpp
+int x = 10;
+int& r = x;
+r = 20;     // looks and feels like a normal variable
+````
+
+No need for * or & all the time — <strong>references automatically dereference themselves.</strong> They are easier to read, write, and maintain.
+
+- <strong>No null or uninitialized references.</strong>
+
+Pointers can be null, dangling, or uninitialized, causing runtime crashes. A reference must be initialized and can never be null, which makes it safer.
+
+````cpp
+int* p = nullptr;   // valid, but risky if dereferenced
+int& r = x;         // must be bound to a valid variable
+````
+
+- <strong>Perfect for function parameters.</strong>
+
+When we want a function to modify a variable passed to it,
+you can use a reference instead of a pointer It's cleaner and safer.
+
+````cpp
+void increment(int& n) {   // pass by reference
+    n++;
+}
+
+int main() {
+    int x = 5;
+    increment(x);          // no need for & or *
+    cout << x;             // prints 6
+}
+````
+
+Compare that with pointers:
+````cpp
+void increment(int* n) 
+   { (*n)++; }
+
+
+increment(&x);              // more complex syntax
+````
+- References are ideal for operator overloading and function return values. They’re heavily used in:
+   - Operator overloading (operator= returns a reference)
+   - Copy constructors
+   - Stream operators (<<, >>)
+   - Returning large objects efficiently
+
+<i style="text-indent: 30px;color:#FF0000;">Other examples in the slides (page 58)</i>
+
+
+# 3. Function Parameters.
+<div align="justify">
+
+In C++, parameters allow us to pass information to functions so they can operate on different data.
+The variables defined in the function header are called formal parameters, while the values passed by the caller are actual parameters.
+
+C++ supports two main ways to pass them — by value and by reference — which differ in how memory is handled and whether the function can modify the original data.
+
+<strong>Formal parameters</strong> are symbolic variables defined in the function header (function definition). They act as local variables inside the function.
 
  In a function definition we use formal parameters representing a symbolic 
 reference (identifiers) to objects used within the function
- • radius is a formal parameter
- • They are used by the function as if they were local variables
- • The initial value of formal parameters is defined when the function is called 
+
+````cpp
+return_type name (formal arguments);      // a declaration
+return_type name (formal arguments){...}; // a definition
+````
+
+<strong>Actual parameters</strong> are the real values passed by the caller. The initial value of formal parameters is defined when the function is called
 using the actual parameters specified by the caller
- • r in our running example
 
- formal parameter fun(souble radius)
- actual parameter fun(5.0)
+<i style="color:#2E86C1;">Example</i>
 
- There are a lot of techniques.
- The two most common are 
- pass by value and pass by reference
+````cpp
+double circ(double radius) {     // radius is a FORMAL PARAMETER
+  double res;
+  res = radius * 3.14 * 2;
+  radius = 7;
+  return res;
+}
 
- - Pass by value 
+// ...
+// somewhere in the main
 
- the acutal parameter is copied into the memory location of the correspoding formal parameter. In other owords the actual and formal parameter refer to differnet memeoty locations
+double c;
+double r = 5;
+c = circ(r);                     // r is a ACTUAL PARAMETER
+````
 
- See computer memory Pages 18
- in the exmaple of page 14 de variable res is in the stack memory
+## 3.1 Passing Parameters.
 
- The variables inside the function (local variabeles of the funciton) is only put in memeory when the function is invoqued and is sotred in the stack. When the function termines the stack is deallocated.
+In a function call, parameter passing consists in associating the actual parameters with the formal parameters. There are two main techniques:
 
+### 3.1.1 Pass by value.
+
+The actual parameter’s value is <strong>copied</strong> into the function’s formal parameter. The two variables occupy <strong>different memory locations.</strong> 
+
+<i>Changes made inside the function do not affect the caller’s variable. <strong>The actual parameters are not changed.</strong></i>
+
+<i style="color:#2E86C1;">Example</i>
+
+````cpp
+double circ(double radius) {
+  double res;
+  res = radius * 3.14 * 2;
+  radius = 7; // No sense instruction,
+ // let's see what happens to radius
+  return res;
+}
+// somewhere in the main
+double c;
+double r = 5;
+c = circ(r);
+````
+![Passbyvalue](Images/passbyvalue.png)
+
+The variable res is stored in the stack memory.
+Local variables of a function are created (allocated) in memory when the function is invoked and are stored in the stack.
+When the function finishes execution, this memory is automatically deallocated.
+
+### 3.1.2 Pass by reference.
+
+At the time of the call the address of an actual parameter is associated with
+the formal parameters. In other words, <strong>the actual parameter and the formal parameter share the same memory
+location.</strong>
+
+The running function works in its environment on the formal parameters (and consequently also on the actual parameters) and each change on the formal parameter is reflected on the corresponding actual parameter. 
+
+Then, the function execution affects the caller with modifications to the caller's 
+environment abd in this way we can return multiple results.
+
+To use pass by reference we have to use memory address ( pointers). We need a pointer for each formal parameter and for access to the actual parameter inside the function we need the dereference operator.
+
+<i> Note: Arrays always passed by reference. The name of an array varaible is an address i.e its a pinter. This is very efficient.</i>
+
+<i style="color:#2E86C1;">Example: double circ ()</i>
+````cpp
+double circ(double *radius) {
+double res;
+res = *radius * 3.14 * 2;
+*radius = 7; // No sense instruction, let's
+ // see what happens to radius
+return res;
+}
+// somewhere in the main
+double c;
+double r = 5;
+c = circ(&r);
+// Warning! Now r is 7.0
+````
+![Passbyvalue](Images/passbyreference.png)
+
+<i style="text-indent: 30px;color:#FF0000;">Other examples in the slides (page 34)</i>
+
+### 3.1.3 Comparison.
+Pass by value:
+ - Requires a lot of time to perform the copy if the parameter is large.
+ - Actual parameter and formal parameter are different.
+ - Cannot return a value to the caller (without a return statement!)
+
+Pass by reference:
+ - Only an address is copied  fixed size  fast!
+ - Actual parameter and formal parameter are the same.
+ - Can return a value to the caller.
+
+| **Property** | **Pass by Value** | **Pass by Reference** |
+| ------------ | ----------------- | --------------------- |
+| **Time and Space**             | Large                 | Small                 |
+| **Side Effects Risk**          | No                    | Yes                   |
+| **Return Value to the Caller** | No (without `return`) | Yes                   |
+
+## 3.2 Guidance for passing variables
+
+- Use call-by-value for very small objects (base types!)
+- Use call-by-const-reference for large objects
+- Use call-by-reference when you must return a result or modify an object through a reference argument
+
+
+</div>
+
+
+
+
+
+
+
+void ---> does not return a value
  Fress Store --> Indepentede piece of memory where we can allocate memory when we nedeed
-
- See and exmplae of pass by value in pge 19
-
-
- - Pass by reference 
- actual and fromal parameter share the same memory.
-
- The running function works in its environment on the formal parameters (and 
-consequently also on the actual parameters) and each change on the formal 
-parameter is reflected on the corresponding actual parameter
- • The function execution affects the caller with modifications to the caller's 
-environment
- • In this way we can return multiple results!
-
-To use pass by reference we have to use memory address ( pointers)
-
-We need a pointer for each forlam parameter
-the deference opoerator in the function body to access the actual parameter
-
-In the functin  call, the addrress of the actual parameter is used
-
-Arrays always passed by reference. The name of an array varaible is an address i.e its a pinter
-
-This is very efficient
 
 Pass by refernce example     in page 28
 
 
 other examples in page 34
 
-&a is the address ????
 
 call of functions
 
@@ -136,73 +368,136 @@ Example of procedure in45
 
 Summary at 48
 
+ /////////////////////////////////////////////////
 
-REFERENCES
+ # 4. const Qualifer.
 
-     An automatically dereferenced pointer:
- • Or as “an alternative name for an object”
- • A reference is introduced though the & modifier in a variable declaration
- • A reference must be initialized
- • The value of a reference cannot be changed after initialization
- • i.e., you cannot make a reference refer to another object after initialization
- int x = 9;
- int y = 8;
- int &r = x;    
+<div align="justify">
+The keyword <code>const</code> defines an unchangeable variable. Once a const object is created, its value cannot be modified. Because we can´t change the value of a const object after creation, it must be initialized.
+</div>
 
-  Pointers and references
- • A pointer is a compound type that “points to” another type
- • Like references, pointers are used for indirect access to other objects
- • Unlike a reference, a pointer is an object in its own right
- 53
- • Pointers can be assigned and copied; a single pointer can point to several different 
-objects over its lifetime
- • Unlike a reference, a pointer does not need to be initialized at the time it is defined
- • Like other built-in types, pointers have undefined value if they are not 
-initialized.  Be very careful !!
+````cpp
+const int j = 42;         // ok: initialized at compile time
+const int i = get_size(); // ok: initialized at run time
+const int k;              // ❌ error: k is uninitialized const
+j = 47;                   // ❌ error: we try to change a const variable
+````
+## 4.1 Reference to conts.
+
+A reference to a <code>const</code> object allows access to its value, but does not allow modification of the object it refers to.  
+
+<i style="text-indent: 30px;color:#FF0000;">A reference to a const object must be a const reference.
+You cannot bind a non-const reference (int&) to a const object.</i>
 
 
-REferences PAge 54 is very importsnt
+````cpp
+const int x = 5;
+const int& r = x;   // reference to const
+r = 10;             // ❌ Error — cannot modify a const object
+int &r2 = ci;       // ❌ Error: non const reference to a const object
+````
 
-See 54 and 62 to undesrtand all of this 
+A reference to const does not make the object itself const.
+It only <strong>prevents modification through that specific reference.</strong>
+We can bind a <strong style="color:limegreen;"> reference to const</strong> to an object that can still be changed. <strong style="color:limegreen;">We can bind a <i><u>reference to const</u></i> to an non-const object.</strong>
+
+````cpp
+int x = 5;
+const int& r = x;  // r treats x as const
+x = 10;            // ✅ valid (changed directly, not through r)
+r = 15;            // ❌ invalid (r is const reference)
+````
+
+<i> Note: const references can be used to pass large objects in read-only
+(obtaining the same benefits of C arrays passing + read-only protection,
+i.e., no side effects)</i>
+
+<i style="color:#2E86C1;">Example: double circ ()</i>
+
+````cpp
+double circ(const double &radius) {
+   double res;
+    res = radius * 3.14 *2;
+   radius = 7;            // ❌ Invalid: r is a const reference — you are trying to modify a value that is read-only through this reference.
+   return res;
+}
+
+// somewhere in the main
+
+double c;
+double r = 5;
+c = circ(r);
+// r is 5.0
+````
+
+# 5. Variable's Scope.
+
+<div align="justify">
+The scope of an identifier is the portion of the program in which it can be referenced or accessed.
+Some variables are visible throughout the entire program, while others are visible only within specific blocks or functions.
 
 
+<br>
 
-CONST QUALIFIER
+<i>When we declare a local variable in a block (e.g., in a for loop), it can be
+referenced only in that block or in blocks nested within that block</i>
 
-const -- variable unchangeab
-Because we cant change   the value of a const object after creation, it must be initialized
+## 5.1 Global Variable.
 
-References to const :
- - a reference to const cannot be used to change the object to which the reference is bound Page 66 example of error
+ - Is declared very early stage
+ - Available always and from anywhere
+ - Created at the start of the program, and lasts until the end.
+ -  Stored in the static data
+ -  difficult to debug
+
+<i style="text-indent: 30px;color:#FF0000;"> NEVER USE GLOBAL VARIABLES -5 points at exam
+ Use global variables bad programming practice</i>
 
 
- I dont undesrtanth the example of the age 67-68-69
+## 5.2 Local (On-the-Fly) Variables
 
- Guide for passing values  page  73
+ - Created when needed, inside a function or block.
+ - Exist only within the block where they are defined.
+ - Stored in the stack memory.
+ - Automatically destroyed when the block or function ends.
+ - Easy to debug since their scope is limited and predictable.
 
- STUDY ALL OF THIS
- 
- Variable Scope 
+````cpp
+for (unsigned j = 0; j < 10; ++j) {
+    // do something
+} 
+// 'j' no longer exists here
+````
+## 5.3 Locally-Defined Variables
 
-The scope of an identifier is the portion of the program in which the identifier can be referenced (some can be referenced throughout the program and others can be referenced from only portions of a program)
+- Declared at the beginning of a block or function (before being needed).
+- Exist only inside the function in which they are created.
+- Stored in the stack.
+- Easiest and safest method of variable creation — the most commonly used in C++.
 
-Global variable Global variable
- • declared very early stage
- • available always and from anywhere
- 76
- • created at the start of the program, and lasts until the end, stored in the static data
- • difficult to debug
+````cpp
+void foo() {
+   int x = 5;   // local variable
+   cout << x;
+}
+````
 
- NEVER USE GLOBAL VARIABLES -5 points at exam
- Use global variables bad programming practice
+<strong style="text-indent: 30px;color:#FF0000;">If I have a global variable named x and a local variable with the same name inside a function,
+all operations involving x inside that function will refer to the <u>local variable</u>,
+not the global one.</strong>
 
- Local on-the-fly variables.
-  - simply created when they are nedeed
-  - only available from whitin the routine/block in which they were created,stored in the stack
-  - easy to debug
+## 5.4 Lifetime of a Variable
 
-  If i hace a glocal variable called x and a local variable also called x in my function all the operation that are defined in function of "x" inside my function will take the local variable
+- Locally-defined variables include:
+   - Variables declared inside a function.
+   - Variables declared as function parameters.
+- When a function is called, memory is allocated for all of its local variables.
+- When the function finishes executing, that memory is automatically deallocated.
+- The period during which a variable exists in memory (from its creation until it is destroyed) is called its lifetime.
 
+</div>
+
+///////////////////////
 
 POINTERS TO OBJECTS  IN THE FREE STORE AND MEMORY LEAKS
 

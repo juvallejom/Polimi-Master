@@ -578,9 +578,6 @@ then when we include all those libraries in your main file, the compiler would t
 because the compiler would see the same declarations and definitions again and again.
 </div>
 
-
-Header guards avoid inlcudidn multiple times header files in the corresponding declaration. STUDY MIRE THIS CONCEOT OF HEADR GUARDS
-
 # 2.Terminology
 <div align="justify">
 
