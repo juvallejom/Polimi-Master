@@ -501,15 +501,38 @@ not the global one.</strong>
 
 POINTERS TO OBJECTS  IN THE FREE STORE AND MEMORY LEAKS
 
-Raw Pointers ---> very low-level mechanismo to allows us to have a refernce of some piece of memory.
- - Those that you already know C-like pointers ??????
- - They can point to memory allocated dynamically in the free store
- - Memory Leak??
- - maloc() and free()
+## 6. Raw Pointers.
 
-The hardware provides memory and address
+In modern C++, a raw pointer refers specifically to the traditional C-style pointer, with no automatic memory management and no safety guarantees.
+
+They can point to objects allocated dynamically on the free store (also known as the heap). In modern C++, dynamic memory is managed using <code>new</code> and <code>delete</code> rather than the lower-level <code>malloc()</code> and <code>free()</code> from C.
+
+Because raw pointers provide no automatic memory management or safety guarantees, they must be used with great care.<strong> Incorrect use can easily lead to issues such as memory leaks, dangling pointers, or undefined behavior. </strong>
 
 
+<i>Note: The hardware provides physical memory along with the addresses used to access it (The hardware provides both memory and addresses.)</i>
+
+
+## 6.1 Memory 
+![Pointer Diagram](Images/memory.png)
+
+The memory have four escentila parts:
+ - <strong>Code Section:</strong> Contains the compiled machine instructions of the program. (The executable code).
+ - <strong>Static Data:</strong> Stores global variables, static variables, and constants with fixed lifetime.
+ - <strong>Free Store (Heap): </strong> Dynamically allocated memory managed using <code>new</code> and <code>delete</code>.
+ - <strong>Stack: </strong> Stores local variables, function parameters, and manages function calls.
+
+
+ALLOCATED = ASIGNADO / RESERVADOs
+
+
+
+
+
+
+
+
+//////////////////////////////
  Smart Pointers
  - Manage by the compiler
  - Allocated objects are associadted with the counter
@@ -520,7 +543,7 @@ The hardware provides memory and address
 Slide 4
 
 
-The free store --"the heap"
+
 
 You request memory to be allocated on the free store thorugh the new operator.
 
