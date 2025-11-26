@@ -1,0 +1,6 @@
+\contentsline {section}{\numberline {1}Introduction}{1}{}%
+\contentsline {section}{\numberline {2}Discrete-Time Markov Chains}{2}{}%
+\contentsline {paragraph}{(1) Fair coin as a Markov chain.}{3}{}%
+\contentsline {paragraph}{(2) Two–state weather model.}{3}{}%
+\contentsline {paragraph}{(3) Simple random walk on $\mathbb {Z}$.}{3}{}%
+\contentsline {paragraph}{(4) $n$-step transitions.}{3}{}%

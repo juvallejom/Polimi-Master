@@ -1,0 +1,262 @@
+\documentclass[10pt, oneside]{article} 
+\usepackage{amsmath, amsthm, amssymb, calrsfs, wasysym, verbatim, bbm, color, graphics, geometry}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{xcolor}
+
+\geometry{tmargin=.75in, bmargin=.75in, lmargin=.75in, rmargin = .75in}  
+
+%%%% Styles %%%%
+
+\newmdenv[
+  skipabove=10pt,
+  skipbelow=10pt,
+  backgroundcolor=blue!3,
+  linecolor=blue!60!black,
+  linewidth=1pt,
+  roundcorner=5pt,
+]{thmbox}
+
+\newmdenv[
+  skipabove=10pt,
+  skipbelow=10pt,
+  backgroundcolor=gray!10,
+  linecolor=gray!10!black,
+  linewidth=1pt,
+  roundcorner=5pt,
+]{defbox}
+
+\newmdenv[
+  skipabove=10pt,
+  skipbelow=10pt,
+  backgroundcolor=yellow!5,
+  linecolor=yellow!60!black,
+  linewidth=0.8pt,
+  roundcorner=5pt,
+]{rembox}
+
+% --- New versions
+\newenvironment{theorembox}[1][]{\begin{thmbox}\begin{thm}[#1]}{\end{thm}\end{thmbox}}
+\newenvironment{definitionbox}[1][]{\begin{defbox}\begin{defn}[#1]}{\end{defn}\end{defbox}}
+\newenvironment{remarkbox}[1][]{\begin{rembox}\begin{rem}[#1]}{\end{rem}\end{rembox}}
+
+
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Cdot}{\boldsymbol{\cdot}}
+\numberwithin{equation}{section}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{defn}{Definition}[section]
+\newtheorem{conv}{Convention}
+\newtheorem{rem}{Remark}
+\newtheorem{lem}{Lemma}
+\newtheorem{cor}{Corollary}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{example}[thm]{Example}
+\usepackage{enumitem}
+
+
+
+\title{Stochastic Dynamical Models \\ \large Politecnico di Milano}
+\author{Juan Pablo Vallejo Montañez}
+\date{Academic Year 2025-2026}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\vspace{.25in}
+
+\section{Introduction}
+
+\begin{definitionbox}[Probability Space]
+    A \textbf{probability space} is a measure space \((\Omega,\mathcal{F},P)\), where the measure P satisfies P$(\Omega) = 1$
+    \begin{itemize}
+    \item $\Omega$: \textbf{Sample space} (set of all possible outcomes or results of that experiment).
+    \item $\mathcal{F}$: \textbf{Event space}. Event = subset of outcomes of an experiment to which the probability is assigned.
+    \item For $A \in \mathcal{F}$, $P(A)$: \textbf{Probability function}. Assigns to each event in the event space a probability in $[0,1]$.
+\end{itemize}
+\end{definitionbox}
+
+\noindent
+\textit{Example: Coin flip.}
+
+\[
+\text{Sample Space: } \{H, T\}, \quad
+\text{Random Variable: } X(H)=1,\, X(T)=0, \quad
+\text{Probability: } P(\{H\})=P(\{T\})=\frac{1}{2}.
+\]
+
+\begin{center}
+\texttt{Sample Space} $\longrightarrow$ \texttt{Random Variable} $\longrightarrow$ \texttt{Probability}
+\end{center}
+
+\begin{definitionbox}[Sample Space $\Omega$]
+$\Omega$ is the set of all possible outcomes of the experiment. 
+   
+\end{definitionbox}
+
+
+\begin{definitionbox}[Event Space $\mathcal{F}$]
+\(\mathcal{F}\) is a collection of subsets of $\Omega$, called \textbf{events}.It is said that \(\mathcal{F}\) is a \(\sigma\)-algebra on $\Omega$. 
+
+\textbf{Requirements for an event space} (or $\sigma$-algebra) from $\Omega$:
+\begin{enumerate}[label=(\roman*)]
+    \item Contains both the empty set and $\Omega$: $\emptyset, \Omega \in \mathcal{F}$.
+    \item Closed under complement: if $A \in \mathcal{F}$, then $A^c \in \mathcal{F}$.
+    \item Closed under (countable) union: if $A_i \in \mathcal{F}$ for $i \in \mathbb{N}$, then \(\displaystyle \bigcup_{i=1}^{\infty} A_i \in \mathcal{F}\).
+\end{enumerate}
+
+Conceptually, the event space is the collection of subsets of outcomes of an experiment to which probabilities are asigned.
+    
+\end{definitionbox}
+
+
+\begin{definitionbox}[Probability]
+The probability measure $P$ is a function $P:\mathcal{F} \rightarrow [0,1]$ that assigns to each event $\mathcal{A} \in \mathcal{F}$ a real number $P(A)$ called this a \textbf{probability}, satisfying;
+\begin{enumerate}[label=(\alph*)]
+    \item For all $A \in \mathcal{F}$, $0 \le P(A) \le 1$.
+    \item $P(\Omega)=1$.
+    \item If $A \cap B = \emptyset$, then $P(A \cup B) = P(A) + P(B)$. Generally
+    \[
+    \text{Give a set of of disjoint events } A_i \cap A_j = \emptyset \text{ for } i \neq j. 
+    \]
+    \[
+    P\!\left( \bigcup_{i=1}^{\infty} E_k \right) = \sum_{i=1}^{\infty} P(E_k).
+    \]
+\end{enumerate}
+    
+\end{definitionbox}
+
+\begin{definitionbox}[Random Variable]
+A random variable $X$ maps from $\Omega$ to another measurable space $(S, \mathcal{T})$:
+
+\[
+X: \Omega \to S.
+\]
+
+\[
+X^{-1}(S') = \{\omega \in \Omega \mid X(\omega) \in S'\}.
+\]
+
+\[
+P_X(S') = P(X^{-1}(S')) = P(\{\omega \in \Omega \mid X(\omega) \in S'\}).
+\]
+
+If there is some subset $S'$ of $S$ whose probability we want to reason about,  
+we measure it by looking at the preimage under $X$ of that subset of $\Omega$.
+
+    
+\end{definitionbox}
+
+\textcolor{red}{AÑADIR TODAS LAS IMAGENES Y DEFINICIONES ASOCIADAS A LA VARIABLE ALEATORIA}{}
+
+\section{Discrete-Time Markov Chains}
+
+\begin{definitionbox}[Stochastic Process]
+Let $(\Omega,\mathcal{F},\mathbb{P})$ be a probability space and let $I$ be a (countable) state space.
+A \textbf{(discrete-time) stochastic process} with values in $I$ is a family
+\[
+\{X_n\}_{n\in\mathbb{N}_0}, \qquad X_n:\Omega\to I.
+\]
+For $i\in I$ we write $\mathbb{P}(X_n=i)=\mathbb{P}\{\omega\in\Omega:X_n(\omega)=i\}$.
+\end{definitionbox}
+
+\begin{definitionbox}[Markov Chain and Markov Property]
+A stochastic process $\{X_n\}_{n\in\mathbb{N}_0}$ with values in $I$ is a
+\textbf{Markov chain} if for all $n\in\mathbb{N}_0$ and all $i_0,\dots,i_{n-1},i,j\in I$,
+\[
+\mathbb{P}(X_{n+1}=j \mid X_n=i,\; X_{n-1}=i_{n-1},\dots,X_0=i_0)
+= \mathbb{P}(X_{n+1}=j \mid X_n=i).
+\]
+We denote the \textbf{one-step transition probabilities} by
+\[
+p_{ij}(n) := \mathbb{P}(X_{n+1}=j \mid X_n=i), \qquad i,j\in I.
+\]
+The chain is \textbf{time-homogeneous} if $p_{ij}(n)$ does not depend on $n$; then we write $p_{ij}$.
+\end{definitionbox}
+
+\begin{definitionbox}[Transition Matrix and Distributions]
+In the time-homogeneous case, the matrix $P=(p_{ij})_{i,j\in I}$ is the
+\textbf{transition matrix} and satisfies
+\[
+p_{ij}\ge 0,\qquad \sum_{j\in I} p_{ij}=1 \quad \text{for every } i\in I
+\quad\text{(each row is a probability distribution).}
+\]
+If $\mu^{(0)}$ is the \textbf{initial distribution} on $I$, $\mu^{(0)}_i=\mathbb{P}(X_0=i)$,
+then the law at time $n$ is
+\[
+\mu^{(n)} = \mu^{(0)} P^{\,n}, \qquad
+\mu^{(n)}_j=\mathbb{P}(X_n=j)=\sum_{i\in I}\mu^{(0)}_i\, (P^{\,n})_{ij}.
+\]
+\end{definitionbox}
+
+\begin{theorembox}[Chapman–Kolmogorov]
+For $m,n\in\mathbb{N}$ and $i,j\in I$, let
+$p^{(n)}_{ij}:=\mathbb{P}(X_n=j\mid X_0=i)$.
+Then
+\[
+p^{(m+n)}_{ij}=\sum_{k\in I} p^{(m)}_{ik}\, p^{(n)}_{kj},
+\qquad\text{equivalently}\qquad P^{\,m+n}=P^{\,m}P^{\,n}.
+\]
+\end{theorembox}
+
+\begin{remarkbox}[Meaning of a State Transition]
+A \emph{state} $i\in I$ represents a possible configuration of the system.
+The entry $p_{ij}$ is the probability that, in one time step, the system
+moves from state $i$ to state $j$. A row of $P$ lists all possible next states
+starting from a fixed current state.
+\end{remarkbox}
+
+% -----------------------
+% Examples
+% -----------------------
+\subsection*{Examples}
+
+\paragraph{(1) Fair coin as a Markov chain.}
+State space $I=\{H,T\}$. With independent flips,
+\[
+P=\begin{pmatrix}
+\frac{1}{2} & \frac{1}{2}\\[4pt]
+\frac{1}{2} & \frac{1}{2}
+\end{pmatrix},
+\qquad
+\mu^{(n)}=\mu^{(0)} P^{\,n}.
+\]
+Each row is the same because the next outcome does not depend on the current one.
+
+\paragraph{(2) Two–state weather model.}
+Let $I=\{\mathrm{S},\mathrm{R}\}$ (sunny/rainy). For $0\le a,b\le 1$,
+\[
+P=\begin{pmatrix}
+1-a & a\\
+b   & 1-b
+\end{pmatrix}.
+\]
+Here $a=\mathbb{P}(\text{sun}\to\text{rain})$ and $b=\mathbb{P}(\text{rain}\to\text{sun})$.
+
+\paragraph{(3) Simple random walk on $\mathbb{Z}$.}
+State space $I=\mathbb{Z}$. For fixed $p\in[0,1]$ and $q=1-p$,
+\[
+p_{i,i+1}=p,\qquad p_{i,i-1}=q,\qquad p_{ij}=0 \text{ otherwise.}
+\]
+Thus $P$ is tridiagonal with constant super/sub-diagonals.
+
+\paragraph{(4) $n$-step transitions.}
+For a time-homogeneous chain,
+\[
+p^{(n)}_{ij}=\mathbb{P}(X_n=j\mid X_0=i)=(P^{\,n})_{ij},\qquad
+\sum_{j\in I} p^{(n)}_{ij}=1 \ \ \text{for each } i\in I.
+\]
+
+
+
+
+
+
+
+\end{document}

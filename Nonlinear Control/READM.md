@@ -5,6 +5,8 @@ Prerequisits to this course
  - Control Enginerring Course
 
 To review
+ -  Very Imporant thing here is study the impulse response of the systems. What is it? What information give to me? This is the reason why the tranfer function have to be proper (m<n) Where the numerator order is m and the denominator order is n. Is important to undesrtan this very well
+ - Transfer function Canonical Form https://lpsa.swarthmore.edu/Representations/SysRepTransformations/TF2SS.html
  - How works the feddback and the feedforward
  - Clarify Open Loop and Closed Loop
  - Finite Escape Time
