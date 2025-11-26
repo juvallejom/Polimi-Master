@@ -251,6 +251,54 @@ how information is stored = Data Structure.
 See explamples on the sludes
 
 FINISH THIS PARTS OF ADT
+
+# 3. Structs.
+
+A struct is a class where members are public by default.
+````cpp
+struct X {
+    int m;
+       // .....................
+    };
+    
+//is equivalent to
+
+class X {
+    public:
+    int m;
+    //. ....................
+};
+ ````
+
+## 3.1 Why bother with the public/private distinction?
+
+1. Not everything should be public: Making everything public exposes internal details. Public members are accessible from anywhere, which can lead to unintended misuse.
+
+2. Provides a clean interface: Public members define the interface that other code interacts with. Private members can hide “messy” or complex details that users don’t need to see.
+
+3. Allows flexible implementation: If internal representation is private, you can change it freely without breaking code that uses the class.Only the public functions (interface) need to remain consistent.
+
+4. Simplifies maintenance and debugging: When internals are hidden, it’s easier to locate and fix issues (“round up the usual suspects” technique). Private members help enforce invariants (rules about how data should behave).
+
+5. Supports code evolution: Users of your class only rely on the public interface. You can change internal data structures or algorithms without affecting external code.
+
+
+<i style="color:#2E86C1;">Benefits of information hiding (private members)</i>
+
+- Easier support for code evolution.
+- Internal changes don’t require changes in external code.
+- Reduces the chance of unintended interference.
+- Simplifies debugging and maintenance.
+- Maintains invariants automatically.
+
+## 3.2 Invariants.
+
+An invariant is a condition or rule that must always be true for a piece of data or an object, no matter what operations are performed on it. In other words  <i>A rule for what constitutes a valid value is called an <strong>invariant</strong></i>
+
+We try to design our types so that values are guaranteed to be valid  (or we have to check for validity all the time).
+
+
+
 __________________________________________________
 Advanced Classes
 
@@ -263,6 +311,30 @@ What is heterogenius types?
 
 Public private beneficies
 
+
+Members are accessed using . (dot) for objects and −> (arrow) for pointers
+• Operators, such as +, !, and [], can be defined
+• The public members provide the class interface and the private members provide
+implementation details
+
+
+ Class members are private by default:
+ class X {
+ int mf();
+ // …
+ };
+ is equivalent to
+ class X {
+ private:
+ int mf();
+ // …
+ };
+• So
+ X x; // variable x of type X
+X *px = &x; // pointer to type X
+int y = x.mf(); // error: mf is private (i.e., inaccessible)
+int w = (*px).mf(); // error: mf is private (i.e., inaccessible)
+int z = px->mf(); // error: mf is private (i.e., inaccessible
 ____________________________________________________
 
 CONSTRUCTUS

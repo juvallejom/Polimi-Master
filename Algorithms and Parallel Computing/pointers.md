@@ -90,8 +90,17 @@ In this example, that memory address is 2.
 
 - The expression <code>*p=7</code> changes the value of the variable that the pointer points to.
 In this example, the value of x changes from 5 to 7.
-
 </div>
+
+## 1.4 Pointer to Pointers
+
+A pointer is an object in memory, so like any object it has a value and an address. In this way, a pointer can be viewed as a variable that stores an address. Therefore, we can store the address of a pointer in another pointer.
+
+````cpp
+int ival = 1024;
+int *pi = &ival;    // pi points to an int
+int **ppi = &pi;    // ppi points to a pointer to an int
+````
 
 //////////////////////////////////////////////////////
 
@@ -107,10 +116,12 @@ Be careful where the pinter is pointing :v
 
 
 # 2. References.
-
+## 2.1 Definition.
 A reference in C++ can be seen as an <strong>automatically dereferenced pointer</strong> or as an alternative name for an existing object.
 
 A reference is introduced using the & symbol in a variable declaration.and must be initialized when it is declared.
+
+<strong style="text-indent: 30px;color:#FF0000;"> A reference is not a object. Hence, we cannot have pointer to a reference.</strong>
 
 After initialization, a reference cannot be changed to refer to another object
 
@@ -211,8 +222,18 @@ increment(&x);              // more complex syntax
    - Stream operators (<<, >>)
    - Returning large objects efficiently
 
-<i style="text-indent: 30px;color:#FF0000;">Other examples in the slides (page 58)</i>
+<i style="text-indent: 30px;color:#FF0000;">Other examples in the slides 2 Pointers Part I (page 58)</i>
 
+## 2.2 References are not assignable.
+<div align="justify">
+In C++, when we say that a type is <i>assignable,</i> we mean that we can give it a new value after it has been created using the = operator.
+
+A reference is not a value; it is not an object. A reference is a binding that is created when you declare it. We cannot take a pointer to a reference because a reference is not an object—the pointer can only point to a piece of memory.
+
+By definition, references are non-assignable. On the other hand, container values must be assignable. For this reason, <strong>it is not possible to build a vector of references</strong >.
+
+<i>Note: Other non-assignable types are also not allowed as components of containers e.g., `vector<const int>` is not allowed</i>
+</div>
 
 # 3. Function Parameters.
 <div align="justify">
@@ -430,6 +451,14 @@ c = circ(r);
 // r is 5.0
 ````
 
+````cpp
+int i = 42;
+int &r1=i;           // r1 bound to i
+const int &r2 = i;   // r2 also bound to i, but cannot be used to change i
+r1 = 0;              // r1 is not const; i is now 0
+r2 = 0;              // error: r2 is a reference to const
+````
+
 # 5. Variable's Scope.
 
 <div align="justify">
@@ -512,8 +541,22 @@ Because raw pointers provide no automatic memory management or safety guarantees
 
 <i>Note: The hardware provides physical memory along with the addresses used to access it (The hardware provides both memory and addresses.)</i>
 
+<i style="color:#2E86C1;">Why Use Raw Pointers?</i>
+
+Raw pointers can be useful in certain situations, especially when working with large data structures. Key reasons include:
+
+1. Sharing large data structures: Using raw pointers allows multiple parts of the program to refer to the same object without creating copies. This avoids unnecessary memory use and improves performance.
+
+2. Avoiding memory waste: Making copies of large objects consumes extra memory. Pointers let you work with the original object directly, saving resources.
+
+3. Reducing synchronization overhead:  If you make multiple copies of an object, you need to keep them in sync. This introduces additional complexity and potential for errors (e.g., forgetting to update one copy). Pointers allow all users to see the same data automatically.
+
+
+<i>Note: Even though raw pointers can be useful, modern C++ encourages smart pointers (std::unique_ptr, std::shared_ptr) <strong style="text-indent: 30px;color:#FF0000;">REFERENCE TO SMART PORINTES HERE.</strong> for dynamic memory management to avoid leaks and undefined behavior</i>
+
 
 ## 6.1 Memory 
+<div align="justify">
 ![Pointer Diagram](Images/memory.png)
 
 The memory have four escentila parts:
@@ -522,131 +565,213 @@ The memory have four escentila parts:
  - <strong>Free Store (Heap): </strong> Dynamically allocated memory managed using <code>new</code> and <code>delete</code>.
  - <strong>Stack: </strong> Stores local variables, function parameters, and manages function calls.
 
+In C++, you don’t always need to use new, but you use it when you need to allocate memory dynamically, meaning at runtime, when the amount of memory you need cannot be determined at compile time. Somes cases:
+
+ - When the size is only known at runtime.
+ - When the memory must outlive the scope of a function.
+ - When the object or array is very large.
+ - When multiple functions or objects need to share the same data.
+ - When implementing dynamic data structures.
+
+Use <code>new</code> to allocate dynamic memory on the free store during runtime. <i>The <code>new</code> operator returns a pointer to the allocated memory. A pointer is the address of the first byte of the allocated memory, so a pointer does not know how many elements it points to.</i>
+
+![New](Images/pointer3.png)
+
+````cpp
+int *p = new int;
+
+int *q = new int[7];
+````
+
+The <code>delete[]</code> operator is used to deallocate memory that was previously allocated for an array using <code>new[]</code>.
+
+<i style="color:#2E86C1;">Free Store</i>
+
+With old C, when you do not know a priori your data structure size and you do not want to over-allocate memory. For this purpose in C++ use <strong>STL containers</strong>.
+
+With pointers and arrays we are "touching" hardware directly with only the most minimal help from the language. Here is where serious programming errors can most easily be made, resulting in malfunctioning programs and obscure bugs. Be careful and operate at this level only when you really need to.
+
+If you get "segmentation fault", "bus error", or "core dumped",suspect an uninitialized or otherwise invalid pointer
+
+Finally, vector (and other STL containers) is one way of getting almost all of the flexibility and performance of arrays with greater support from the language.
+
+</div>
+
+
+
+## 6.2 Pointer states.
+
+1. <strong>It can point to an object:</strong> The pointer holds the address of a valid object or allocated memory.
+
+2. <strong>It can point to the location immediately past the end of an object:</strong> This is allowed in C++ for iteration purposes (e.g., pointing to end()),
+but you must not dereference it.
+
+3. <strong>It can be a null pointer: </strong>This indicates that the pointer does not refer to any object.
+
+````cpp
+int *p1 = nullptr;
+````
+<code>nullptr</code> is a literal that has a special type that can be converted to any other pointer type.
+
+You should never attempt to dereference a null pointer in C++, because a null pointer does not refer to any valid memory location or object. When you write something like:
+````cpp
+int* p = nullptr;
+int x = *p;   // ❌ ERROR
+````
+you are telling the program to access memory at address 0, which is reserved and invalid. This leads to undefined behavior, most commonly a program crash (segmentation fault or access violation).
+
+4. <strong>It can be invalid: </strong> Any value that does not fall into the previous three categories is invalid
+(e.g., uninitialized pointers, dangling pointers, corrupted addresses). It is an error to copy or try to access the value of an invalid pointer. As when we use an uninitialized variable, this error is one that the compiler is unlikely to detect. The result of accessing an invalid pointer is undefined.
+
+
+<i style="color:#2E86C1;">Access Example N° 1</i>
+
+````cpp
+int* p1 = new int;    // get (allocate) a new uninitialized int 
+int* p2 = new int(5); // get a new int initialized to 5
+
+int x = *p2;          // get/read the value pointed to by p2 (or "get the contents of
+ // what p2 points to"), in this case, the integer 5
+int y = *p1;          // ❌ ERROR undefined: y gets an undefined value; don't do that!!!! 
+````
+![Acess Example 1](Images/pointer4.png)
+
+<i style="color:#2E86C1;">Access Example N° 2 VERY IMPORTANT - ARRAYS - Secuence of elements</i>
+
+````cpp
+int* p3 = new int[5];   // get (allocate) 5 ints. Array elements are numbered [0], [1], [2], …
+p3[0] = 7;              // write to ("set") the 1st element of p3     
+p3[1] = 9;              // set the value of the 2nd element of p3
+
+int x2 = p3[1];         // get the value of the 2nd element of p3         
+int x3 = *p3;           // we can also use the dereference operator *
+````
+For secuenuce of elements we can use the derefence operator in this way:
+
+ - <code>*p3</code> means <code>p3[0]</code> (and vice versa)
+ - <code>p3[i]</code> means <code>*(p3+i)</code>
+
+![Acess Example 2](Images/pointer5.png)
+
+<i style="color:#2E86C1;">Access Example N° 3 - A pointer does not know how many elements that it´s pointing to.</i>
+
+````cpp
+double* p1 = new double;    // One element
+*p1 = 7.3;                  // Set the element as 7.3   
+p1[0] = 8.2;                // Changes from 7.3 to 8.2
+
+p1[17] = 9.4;               // ❌ ERRORouch! Undetected error. There is only one element.
+p1[-4] = 2.4;               // ❌ ERROR ouch! Another undetected error. There is only one element.
+
+double* p2 = new double[100];
+*p2 = 7.3;                  // Set the first element as 7.3
+
+p2[17] = 9.4;               // Set the 17-th element as 9.4
+p2[-4] = 2.4;               // ❌ ERROR Error there is not negative positions
+````
+
+![Acess Example 4](Images/pointer6.png)
+
+<i style="color:#2E86C1;">Access Example N° 5 - Memory leak.</i>
+
+````cpp
+double* p1 = new double;
+double* p2 = new double[100];
+p1[17] = 9.4;                // ❌ ERROR error (obviously) 
+p1 = p2;                     // assign the value of p2 to p1
+p1[17] = 9.4;                // now ok: p1 now points to the array of 100 doubles.
+````
+
+![Acess Example 6](Images/pointer7.png)
+
+If we point a pointer to another object without deleting the first, you have a memory leak.<i> ( Seee this section: Always delete dynamically allocated objects when they are no longer needed, or better yet, use smart pointers to manage memory automatically.)</i>
+
+
+<strong>A pointer does know the type of the object that  it’s pointing to</strong>
+````cpp
+int* pi1 = new int(7);
+int* pi2 = pi1;      // ok: pi2 points to the same object as pi1
+double* pd = pi1;    // error: can't assign an int* to a double*
+char* pc = pi1;      // error: can't assign an int* to a char*
+ ````
+
+<i>Note: If you get "segmentation fault", "bus error", or "core dumped", suspect an initialized or otherwise invalid pointer.</i>
+
+<i>Note: vector (and other STL containers) is one way of getting almost all of the flexibility and performance of arrays with greater support from the language (read: fewer 
+bugs and less debug time) </i>
+
+## 6.3 Memory Leak.
+
+A memory leak occurs when memory that is no longer needed is not released. In this situation, an object remains stored in memory but cannot be accessed by the running program. Memory leaks waste resources, can degrade performance over time, and may eventually cause the program to crash if the system runs out of memory.
+
+Memory leaks can be a serious problem in real-world programs. A program that must run for a long time can’t afford any memory leaks.
+
+When we use pointers, we have to deallocate memory when we no longer need it using <code>delete[]</code>. Be careful — it’s easy to forget this. This is one of the reasons why using raw pointers is not a good strategy.
+ 
+SEE MEMORY LEAK ACCESS EXAMPLE.
+
+````cpp
+double* calc(int result_size, int max)
+   {
+   double *result = new double[result_size]; 
+   double *p = new double[max];     
+   // … use p to calculate values to be put in result …
+   // We don't deallocate the p pointer.
+   return result;
+   }
+
+double *r = calc(200,100); // oops! We "forgot" to give the memory allocated for p back to the free store
+````
+Here, the pointers p and result are on the stack of the function. The elements that p and result point to are in the free store (heap). When the function finishes, the stack disappears — p and result are removed as pointers. The elements of result in the free store will still be pointed to by r, but the elements in the free store that p points to will no longer have any pointer referencing them.
+
+We have to use <code>delete[] p;</code>  inside the function to deallocate or free that array from memory.
+
+It’s the same with r: at the end of the program, we have to deallocate r as well.
+
+OTHER EXAPLE 
+
+````cpp
+double* make(int n)              // allocate n doubles
+   { 
+   double* p = new double[n];
+   return p;
+   }
+ ````
+
+On the stack, we have an activation record of the function make containing two variables: n and p.On the free store (heap), n elements of type double are allocated.
+When the make function finishes, the stack frame disappears — n and p are removed.
+
+However, the memory allocated in the free store remains.Outside the make function, we can still use that memory. It will remain allocated until we explicitly deallocate it using the delete[] operator.
+
+To summarize, memory leaks occur when dynamically allocated memory is not properly released, so it remains inaccessible and wasted. To systematically and simply avoid memory leaks, the best practice is to avoid working directly with new and delete, and >strong>instead rely on safer alternatives like std::vector and other STL containers</strong>. Another option in some languages is to use a garbage collector, a program that tracks dynamically allocated memory and automatically returns unused memory to the free store. In C++, the closest equivalent is <strong>smart pointers</strong>, which help manage dynamic memory safely. However, even garbage collectors and smart pointers cannot prevent all leaks, so careful program design is still necessary.
 
 ALLOCATED = ASIGNADO / RESERVADOs
 
+## 6.4 Free Store Summary.
 
+1. Allocate using <code>new</code>.This allocates an object on the free store, sometimes initializes it, and returns a pointer to it
+````cpp
+int *pi    = new int;         // default initialization (none for int)       
+char *pc   = new char('a');   // explicit initialization   
+double *pd = new double[10];  // allocation of (uninitialized) array
+````
 
+2. Deallocate using delete and <code>delete[ ]</code>:  <code>delete</code> and <code>delete[ ]</code> return the memory of an object allocated by new to the free store so that the free store can use it for new allocations
 
+````cpp
+delete pi;          // deallocate an individual object      
+delete pc;          // deallocate an individual object
+delete[ ] pd;       // deallocate an array
+````   
 
+3. Delete of the null pointer does nothing
 
+````cpp
+char *p = nullptr;  // harmless
+delete p;  
+````
 
-
-//////////////////////////////
- Smart Pointers
- - Manage by the compiler
- - Allocated objects are associadted with the counter
- - See slides 3
-
-
-
-Slide 4
-
-
-
-
-You request memory to be allocated on the free store thorugh the new operator.
-
-the new opoerator returns a pointer to the allocated memeory
-A prointer is an address of the first byte of the memory
-
-See page 5 
-
-
-Pointers states page 6
-
-
-Null pointers oage 7 until page 12
-
-
-the pointers does not know the number of elements that its pointing to.
-
-I have a doutb, in the slide 17 they say that p1 = p2. I know that the arrayws works as pointers but what is the limit of that simplification concept
-
-If i change pointsres maybe an element will be without pointer
-
-A pointer does know the type of the objetc that its pointing to
-
-I cant not assing an int* to a oduble*
-
-Free Store
-
- With old C, when you do not know a priori your data structure size and you do not 
-want to over-allocate memory
- • For this purpose in C++ use STL containers
- • With pointers and arrays we are "touching" hardware directly with only the most 
-minimal help from the language
- • Here is where serious programming errors can most easily be made, resulting in malfunctioning 
-programs and obscure bugs
- • Be careful and operate at this level only when you really need to
- • If you get "segmentation fault", "bus error", or "core dumped", suspect an uninitialized or 
-otherwise invalid pointer
- • vector (and other STL containers) is one way of getting almost all of the flexibility 
-and performance of arrays with greater support from the language (read: fewer 
-bugs and less debug time
-
-
-
- double* make(int n)            // allocate n doubles
- { 
-double* p = new double[n];
- return p;
- }
-
- In the stack, we have an activing and record of make with two vairbales, n and p
-
- but in the free store, we allocate the necessarrly n elements.
- When the make function finish, the stack dissapear but the allocated memory in the free store remains. Outside the make function, we can still use that piece of memory, andit reamins until we deallocated or removed from free store wirh the delete function
-
-
- Why use raw pointers? 
-  -  When you want to share large data structures and avoid multiple copies (this 
-is the use of raw pointers we will make in the course even without new and 
-delete)
- • Copies waste memory
- • Copies need to be kept in sync and this introduces additional overhead (and we may also 
-forget!!!)
-
-MEMORY LEAK
-
-when we allocate dmemory on the free store but we forget to remove it.
-
-- Memory which is no longer needed is not released
-- An object is stored in memeory but  cannot be accessed by the running code
-
-
-
- double* calc(int result_size, int max)
- {
- double *result = new double[result_size]; 
-double *p = new double[max];     
-// allocate another max doubles
- 26
- // i.e., get max doubles from the free store
- // … use p to calculate values to be put in result …
- return result;
- }
- double *r = calc(200,100); // oops! We "forgot" to giv
-
-
- Here, pointers p and result are in the stack of the function. The elements that points p and result are in the free store. When the function finish , the stack dissapear (result and p are removed as pointers) and the elements of "reuslt" in the free store will be pointing by r but the elements on the free store of "p" will not have pointer
-
- we have to use delete [] p inside the function to deallocate or free that aaray from our memeory
-
- Its the same with r. At the final part of the code we have to deallocated r
-
-
-
-  A program that needs to run “forever” can’t afford any memory leaks
- • An operating system is an example of a program that “runs forever”
- • All memory is returned to the system at the end of the program
- • If you run using an operating system (Windows, Unix, whatever)
- 28
- • Program that runs to completion with predictable memory usage may leak 
-without causing problems
- • i.e., memory leaks aren’t “good/bad” but they can be a major problem in specific 
-circumstances
-
+--------------------------------------------------------
 
  Memory leaks
  • How do we systematically and simply avoid memory leaks?
@@ -661,35 +786,8 @@ dynamically
 • Unfortunately, even a garbage collector and Smart Pointers do not prevent all leak
 
 
- Free store summary
- • Allocate using new
- 33
- • new allocates an object on the free store, sometimes initializes it, and returns a pointer to it
- • int *pi    = new int;           
-• char *pc   = new char('a');     
-• double *pd = new double[10];    
-// default initialization (none for int)
- // explicit initialization
- // allocation of (uninitialized) array
- • Deallocate using delete and delete[ ]
- • delete and delete[ ] return the memory of an object allocated by new to the free store so that the 
-free store can use it for new allocations
- • delete pi;       
-• delete pc;       
-• delete[ ] pd;    
-// deallocate an individual object
- // deallocate an individual object
- // deallocate an array
- • Delete of the null pointer does nothing
- • char *p = nullptr;
- // harmless
- • delete p;      
 
-
-Pointer is like a variable that stores an address
- A reference is not a object. Hence, we cannot have pointer to a reference.
- ¿Unsigned?
- A reference is not a value, is not an object. The reference is a binding that you create when you declare the reference. WE cannot take a pointer to a refrence beacuse a reference is not an objects, the pointer is only for piece of memory
+ 
 
 
  Reference to consntant.
@@ -712,152 +810,154 @@ r2 = 0;
 // error: r2 is a reference to const
 
 
-Refernce can not be stored in vector
+_____________________________________________________
 
-std::vector<int> hello;    // OK
- std::vector<int &> hello;  // Error! Pointer to reference is illegal!
- • Container values must be assignable
- • References are non-assignable (you can only initialize them once when they 
-are declared, and you cannot make them refer to something else later)
- • Other non-assignable types are also not allowed as components of containers
- • e.g., vector<const int> is not allowed
+# 7. The auto specifier.
+## 7.1 Definitions.
+<code>auto</code> allows C++ to assign the data type of a variable automatically. We don’t have to specify the data type if we use the auto specifier.
+
+A variable that uses <code>auto</code> as its type specifier must have an initializer, in order to determine the type of the data.
+
+````cpp
+// the type of item is deduced from the type of the result of adding val1 and val2 
+auto item = val1 + val2; // item is initialized to the result of val1 + val2 
+````
+
+<i style="color:#2E86C1;">Example - Transversing a vector</i>
+
+````cpp
+vector<int> v{1,2,3,4,5,6,7,8,9};
+for (auto &i: v)             // for each element in v (note: i is a reference) 
+   i *= i;                   // the same as i = i*i, i.e, square the element value 
+for (auto i : v)             // for each element in v 
+   cout << i << " ";         // print the element 
+   cout << endl; 
+````
+
+## 7.2 auto with references.
+
+1. A range-based for loop (assume v is a vector of strings):
+
+````cpp
+for (string s : v) cout << s << "\n";         // s is a copy of each v[i]
+for (string& s : v) cout << s << "\n";        // no copy
+for (const string& s : v) cout << s << "\n";  // and we don't modify v
+````
+
+2.  A range-based for loop (assume v is a vector with elements of any type):
+
+````cpp
+for (auto e : v) cout << e << "\n";          // e is a copy of each v[i]
+for (auto& e : v) cout << e << "\n";         // no copy
+for (const auto& e : v) cout << e << "\n";   // and we don't modify v
+````
+
+3. Accesing multidimensional arrays.
 
 
-We can poit a pointer. See slide 4 page 7 to wathc this 
-
-The auto specifier.
-
-auto allows to c++ to asign the data type of a varibale. We dont have to specfify the data type i fwe put a variable with the auto specifer.
-
-A variable that uses auto as it type specifer must have an intializer
-
- // the type of item is deduced from the type of the result of 
-// adding val1 and val2 
-10
- auto item = val1 + val2; // item is initialized to the result of 
-// val1 + val2 
-
-Traversing vector 
-
-Traversing a vector
- vector<int> v{1,2,3,4,5,6,7,8,9};
- 11
- for (auto &i: v) // for each element in v (note: i is a reference) 
-i *= i;      // the same as i = i*i, i.e, square the element value 
-for (auto i : v)           // for each element in v 
-cout << i << " ";    // print the element 
-cout << endl; 
-
-
-auto specifier is useful to for travesing vectoes
-
-We can use auto to access a multidimesional arrays.
+````cpp
+//We want to initialize a matrix (assume a 3×4 matrix, since you have elements 0 to 11)
+// int ia[3][4] = {0,1,2,3,4,5,6,7,8,9,10,11}; 
 
 constexpr size_t rowCnt = 3, colCnt = 4;
- int ia[rowCnt][colCnt];  // array of size 3; 
-// each element is an array of ints of size 4
- size_t cnt = 0;
- for (auto &row : ia)        
-// for every element in the outer array 
-for (auto &col : row){  // for every element in the inner array 
-col = cnt;          // give this element the next value 
-++cnt;              // increment cnt 
-}
+int ia[rowCnt][colCnt];     // array of size 3;each element is an array of ints of size 4
+size_t cnt = 0;
+for (auto &row : ia)        // for every element in the outer array 
+   for (auto &col : row){   // for every element in the inner array 
+      col = cnt;            // give this element the next value 
+      ++cnt;                // increment cnt 
+      }
+````
+# 8. Iterators.
+## 8.1 Definition.
+An iterator is a concept in programming (especially in C++, Java, and Python) that provides a way to access elements of a container (like an array, list, vector, or map) one by one without exposing the underlying structure. Is like a <i>pointer</i> that can move through a collection and access to it.
+
+Like pointers, iterators give us indirect access to an object and can be used to fetch an element. Iterators have also operations to move from one element to another and may be valid or invalid.
+
+If we use iterators instead of subscripts, we can change easily the container type without changing our code.
+
+<i>Note: The subscript operator is the <code>[]</code> operator in programming, used to access elements of an array, vector, or other indexed containers. It allows you to fetch or modify an element at a specific position (index). The standard library defines several other kinds of containers. All library containers have iterators, but
+only a few of them support the subscript operator</i>
 
 
-Iterators
-What is an iterator
+Unlike pointers, you don’t use <code>&</code> to get an iterator. Iterators are provided by the container itself.
 
-What is the sucrpt opertor ??? (Is this [i])????
+Containers like vector, list, or map have member functions called <code>begin()</code> and <code>end()</code> that return iterators.
 
-begin() returns the first element
-end () retunrs is an interator posutiones ONE PAST THE END of the associaded contianer
+- <code>begin()</code> gives an iterator pointing to the first element of the container.We can use it to start traversing the container.
 
-Using Iterators 
-// the compiler determines the type of b and e
- // b denotes the first element and e denotes one past the
- // last element in v 
-19
- auto b = v.begin(), e = v.end();     // b and e have the same type 
-• If the container is empty, the iterators returned by begin and end are equal, 
-they are both off-the-end iterators
+- <code>end()</code> returns an iterator that does not point to an element, but rather just past the last element (returns “one past the last element”). This is useful as a termination condition when looping: you stop iterating when the iterator equals end().
 
+````cpp 
+// the compiler determines the type of b and e. b denotes the first element and e denotes one past the last element in v 
 
-   Using Iterators 
+auto b = v.begin(), e = v.end();     // b and e have the same type
+
+````
+<strong> If the container is empty, the iterators returned by begin and end are equal,  they are both off-the-end iterators</strong>
+
+   <i style="color:#2E86C1;">Example</i>
+
+````cpp
+//begin() and end() is like pointers.
+
 string s("some string");
- if (s.begin() != s.end()) {   // make sure s is not empty 
-auto it = s.begin();      // it denotes the first character in s 
-*it = toupper(*it);       // make that character uppercase 
+if (s.begin() != s.end()) {   // make sure s is not empty
+   auto it = s.begin();       // it denotes the first character in s. 
+   *it = toupper(*it);        // make that character uppercase 
 } 
-20
- Means "go to the next element"
- // process characters in s until we run out of characters or we hit a whitespace
- for (auto it = s.begin(); it != s.end() && !isspace(*it); ++it)
- *it = toupper(*it);      // capitalize the current character 
-Equivalent to
- Important: use != instead of <
- If we change the type it might not work 
-string::iterator it = 
-
-See Slide 20
 
 
-
-Standard container iterator operatiosn
-
-Standard container iterator operations
- Matteo Rossi - Pointers 21
- *iter Returns a reference to the element denoted by the iterator iter
- iter->memb Dereferences iter and fetches the member memb from the underlying 
-element (*iter).memb
- ++iter Increments iter to refer to the next element in the container--iter Decrements iter to refer to the previous element in the container
- iter1 == iter2 Compares two iterators.  Two iterators are equal if they denote the same 
-element or if they are the off-the-end iterator for the same container
-
-Operations supported by vector and string iterators
- (Only by vector and strings! Be careful!!)
- Matteo Rossi - Pointers 22
- iter + n Adding (subtracting) an integral value n from the iterator iter yields an 
-iterator n elements forward (backward) w.r.t. iter within the container iter - n
- iter += n Assign to iter the value of adding (subtracting) n to iter
- iter -= n
- iter1 - iter2 Compute the number of elements between iter1 and iter2
- >,>=,<,<= One iterator is less than another if it denotes an element that appears in 
-the container before the one referred to
+// process characters in s until we run out of characters or we hit a whitespace
+for (auto it = s.begin(); it != s.end() && !isspace(*it); ++it)
+ *it = toupper(*it);         // capitalize the current character 
 
 
+````
+## 8.2 Standard container iterator operations
 
-iterator Types
+When you write <code>*iter</code>, it dereferences the iterator, meaning it gives you the value of the element that the iterator is currently pointing to in the container.
 
+| **Operation**    | **Description**  |
+| ---------------- | ---------------- |
+| `*iter`          | Returns a reference to the element pointed to by the iterator `iter`.                                                               |
+| `iter->memb`     | Dereferences `iter` and fetches the member `memb` from the element (`(*iter).memb`).                                                |
+| `++iter`         | Increments `iter` to refer to the next element in the container.                                                                    |
+| `--iter`         | Decrements `iter` to refer to the previous element in the container.                                                                |
+| `iter1 == iter2` | Compares two iterators; they are equal if they point to the same element or both are “off-the-end” iterators of the same container. |
 
- Iterator types 
-23
- • The library types that have iterators define types named iterator and 
-const_iterator that represent actual iterator types
- vector<int>::iterator it1;  // it1 can read and write int elements 
-// in a vector<int>
- string::iterator it2;       // it2 can read and write characters in a 
-// string 
-vector<int>::const_iterator it3;  // it3 can read but not write
- // int elements 
-string::const_iterator it4;   // it4 can read but not write characters 
+| **Operation** | **Description** |
+| ------------- | --- |
+| `iter + n` / `iter - n`   | Moves the iterator forward/backward by `n` elements within the container.                                                                       |
+| `iter += n` / `iter -= n` | Assigns to `iter` the result of moving it forward/backward by `n` elements.                                                                     |
+| `iter1 - iter2`           | Computes the number of elements between `iter1` and `iter2`.                                                                                    |
+| `>` , `>=` , `<` , `<=`   | Compares two iterators based on their positions in the container. One is less than another if it points to an element earlier in the container. |
 
+## 8.3 Iterator types
 
-The cbegin and cend operations 
+The library types that have iterators define types named iterator and 
+const_iterator that represent actual iterator types.
+
+````cpp
+vector<int>::iterator it1;         // it1 can read and write int elements in a vector<int>
+string::iterator it2;              // it2 can read and write characters in a string 
+vector<int>::const_iterator it3;   // it3 can read but not write int elements  
+string::const_iterator it4;        // it4 can read but not write characters 
+````
+<i style="color:#2E86C1;">cbegin() and cend()</i>
+
+````cpp
 vector<int> v;
- const vector<int> cv;
- 24
- auto it1 = v.begin();  // it1 has type vector<int>::iterator 
-auto it2 = cv.begin(); // it2 has type vector<int>::const_iterator
- • It is usually best to use a const type (such as const_iterator) when we need 
-to read but do not need to write to an object
- • To let us ask specifically for the const_iterator type, since C++11, two new 
-functions named cbegin() and cend() are available
- auto it3 = v.cbegin();   // it3 has type vector<int>::const_iterator
+const vector<int> cv;
+auto it1 = v.begin();      // it1 has type vector<int>::iterator
+auto it2 = cv.begin();     // it2 has type vector<int>::const_iterator
+auto it3 = v.cbegin();     // it3 has type vector<int>::const_iterator
+````
 
 
-Example Binary Search page 25. Its good idea to watch this again. The class is in the 8 of October.
 
+Example Binary Search page 25. Its good idea to watch this again. The class is in the 8 of October. SEE from 25 to the end.
+o
 
 Artihmetic opoeratoes in iterators binary search
 
@@ -888,31 +988,7 @@ auto beg = text.cbegin(), end = text.cend();   // beg and end denote the range w
 
 Wjats the slides beacuse there a lot of things that the techaer did not say in the class
 
- Why bother with the public/private distinction?
- • Why not make everything public?
- • To provide a clean interface
- • Data and messy functions can be made private
- 9
- • To allow data representation (and implementation in general) to change freely
- • You need only to change a fixed set of functions
- • You don't really know who is using a public member
- If internal representation is hidden (information hiding principle):
- • It is easier to support code evolution
- • We can change the internals without changing the remaining code
 
-
- Public/private benefits
- • Why bother with the public/private distinction?
- • Why not make everything public?
- • To provide a clean interface
- • Data and messy functions can be made private
- 10
- • To allow data representation (and implementation in general) to change freely
- • You need only to change a fixed set of functions
- • You don't really know who is using a public member
- • To ease debugging
- • (known as the “round up the usual suspects” technique)
- • To maintain an invariant
 
 Invariants
  12

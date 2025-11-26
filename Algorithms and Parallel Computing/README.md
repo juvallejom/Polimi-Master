@@ -592,6 +592,8 @@ because the compiler would see the same declarations and definitions again and a
     | **Namespace scope** | Names declared inside a namespace are visible only within that namespace unless qualified. |
 
 
+- <strong>size_t (datatype): </strong> <code>size_t</code> is a type in C and C++ (and some other languages that follow C conventions) that is used to represent the size of objects in memory. It’s an unsigned integer type, which means it can only represent zero or positive numbers. It is commonly used for array indexing, memory allocation, and loop counters when dealing with sizes.
+
 - <strong>Statment: </strong>A statement is the smallest independent executable unit in a C++ program.It represents a <i>complete unit of work</i>.<br>
 Statements can perform different actions, such as:
     - <strong>Declaration Statement: </strong> Introduces a new variable or object into the program.
