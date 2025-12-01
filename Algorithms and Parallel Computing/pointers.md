@@ -433,6 +433,7 @@ r = 15;            // ❌ invalid (r is const reference)
 (obtaining the same benefits of C arrays passing + read-only protection,
 i.e., no side effects)</i>
 
+
 <i style="color:#2E86C1;">Example: double circ ()</i>
 
 ````cpp

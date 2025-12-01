@@ -187,6 +187,68 @@ A <strong>destructor</strong> works inversely to a constructor — it is automat
  - Destructors are extremely important when using raw (C-style) pointers to avoid memory leaks.
  - If no destructor is defined, C++ provides a default destructor automatically.
 
+## 1.5 Class Members.
+
+In object-oriented programming (OOP), class members are the components that belong to a class. According to the general definition, the class members are :
+
+ - Attributes (also known as fields or properties).
+ - Methods.
+ - Constructor (Special method used to initialize objects).
+ - Class variables.
+ - Instance variables.
+ - Nested classes.
+
+<strong>Note: The class members are pivate by default in C++.</strong> 
+
+### 1.5.1 Static Members.
+
+A static member in C++ is a member of a class (either a variable or a function) that belongs to the class itself, not to any specific object. A static member lives inside the class, not in the individual objects (instances).Therefore, does not belong to any particular object, so all objects of the class share the same copy and can be accessed using the class name, without creating an object.
+
+````cpp
+class Example {
+public:
+    static int counter; // static member
+};
+
+int Example::counter = 0;
+int main() {
+    Example::counter = 5; // Accessing without creating an object
+}
+````
+Here, <code>counter</code> exists once in memory for the whole class, not separately for each object.
+
+````cpp
+class Example {
+public:
+    int nonStatic;      // belongs to each object
+    static int staticVar; // belongs to the class itself
+};
+
+````
+<i style="color:#2E86C1;">Memory Layout Visualization</i>
+
+````
+Class: Example
++---------------------------+
+| staticVar (shared by all)|
++---------------------------+
+
+Objects:
+    Object1             Object2
+  +----------+        +----------+
+  | nonStatic|        | nonStatic|
+  +----------+        +----------+
+
+````
+
+ - <strong>nonStatic:</strong> Each object has its own copy. Changing Object1.nonStatic does not affect Object2.nonStatic.
+
+ - <strong>staticVar:</strong> Only one copy exists, shared by all objects. Changing it anywhere changes it for everyone.
+
+ - Access:
+   - Non-static → object.nonStatic.
+   - Static → Example::staticVar (no object needed).
+
 # 2. Abstract Data Type (ADT)
 
 
@@ -297,9 +359,197 @@ An invariant is a condition or rule that must always be true for a piece of data
 
 We try to design our types so that values are guaranteed to be valid  (or we have to check for validity all the time).
 
+<i>Advice: Try hard to think of good invariants and use classes, rather than structs. That saves you from poor buggy code</i>
+
+
+# 4. Operators.
+
+## 4.1 Operator dot <code>.</code>
+
+The dot operator is a symbol (.) that lets us reach inside an object to use its attributes and methods.
+
+<i style="color:#2E86C1;">Example</i>
+
+````cpp
+#include <iostream>
+using namespace std;
+
+class Person {
+public:
+    string name;
+    int age;
+    void greet() {
+        std::cout << "Name: " << name << " , age:  " << age <<std::endl;
+    }
+};
+
+int main() {
+    Person person;        // Create an object of type Person
+    person.name = "Anna"; // Accessing an attribute using the dot operator
+    person.age = 25;
+    person.greet();       // Calling a method using the dot operator
+    return 0;
+}
+````
+
+````cpp
+my_birthday.m
+````
+
+Here, the dot operator is used to call the month() function on the object named my_birthday.
+
+Except for static members, every time we call a member function, we do so on behalf of a specific object.The object before the dot determines which instance the function operates on.
+
+BEHALFF MEANS EN NOMBRE DE O DE PARTR DE O POR CUENTA DE 
+
+Inside a member function like month(), any reference to members of the class (for example, an attribute m) is actually a reference to the members of the object that invoked the function.
+This happens implicitly—C++ automatically knows which object you mean.
+
+Therefore, if month() returns the value of m, what it is really returning is:
+
+````cpp
+my_birthday.m
+````
+
+because my_birthday is the object that called the function. Wew don’t need to specify the object name inside the function — C++ already knows.
+
+## 4.2 Operator <code>this</code>.
+
+<code>this</code> is a special pointer available inside all non-static member functions of a class.<strong>It points to the object that is currently calling the function.</strong>
+
+Member functions automatically have access to the object that calls them through an implicit parameter called <code>this</code>. When we call a member function, this is initialized with the address of the object that invoked the function.
+
+````cpp
+my_birthday.month();
+````
+
+
+Here, the compiler automatically passes the address of <strong>my_birthday</strong> to <code>this</code>.
+
+Conceptually, the call is translated by the compiler as:
+
+````cpp
+// Illustration of what happens behind the scenes
+int Date::month(Date* this)
+Date::month(&my_birthday); // &my_birthday is passed to the function
+````
+Inside the function, any access to the object’s members (like m) is interpreted as <code>this->m</code>, meaning the member of the object that called the function.
+
+
+<i style="color:#2E86C1;">object->attribute vs object.attribute</i>
+
+1. Use <code>.</code> when you have an actual object:
+
+````cpp
+Date my_birthday;
+my_birthday.m = 5; // dot operator because my_birthday is an object
+````
+
+2. Use <code>-></code> when you have a pointer to an object:
+
+````cpp
+Date* ptr = &my_birthday;
+ptr->m = 5; // arrow operator because ptr is a pointer  
+````
+
+The this parameter is automatically defined by the compiler for all non-static member functions.It is illegal for us to define a variable or parameter named this.
+
+Inside the body of a member function, we can freely use this to refer to the object that called the function.
+
+````cpp
+int month() {
+    return this->m; // legal but not strictly necessary
+}
+````
+
+Using <code>this->m</code> is allowed because this always refers to the current object.
+
+<strong>this is a const pointer</strong>: we cannot change the address it holds, i.e., <strong>it always points to the object that invoked the member function</strong>.
+
+
+## 4.3 <code>const</code> member function.
+
+A const member function is a member function of a class that guarantees not to modify the object on which it is called. Is declared by placing const after the parameter list:
+
+````cpp
+int getValue() const;
+````
+
+
+- Inside the function, the <code>this</code> pointer is treated as <code>const ClassName* const this</code>.
+- Can be called on both const and non-const objects.
+- Cannot modify any non-mutable members or call non-const member functions.
+- Commonly used for getters, inspectors, or any operation that should not change the object’s state
+
+````cpp
+class Date {
+public:
+    // …
+    int day() const; // get (a copy of) the day
+    // …
+    void add_day(int n); // move the date n days forward
+    // …
+};
+
+//...
+
+const Date dx {2008, 11, 4};
+int d = dx.day();                   // Fine
+dx.add_day(4);                      // ❌ ERROR This line is trying to modify a constant date (cons date)
+````
+
+````cpp
+// FOR THE SAME CLASS 
+
+Date d (2004, 1, 7);                  // a variable - Date object
+const Date d2 (2004, 2, 28);          // a constant Date object
+d2 = d;                               // ❌ ERROR d2 is const
+d2.add(1);                            // ❌ ERROR d2 is const
+d = d2;                               // fine d is not a const object
+d.add(1);                             // fine d is not a const object
+````
+
+## 4.4 Operator Overloading.
+
+In C++, it is possible to redefine the behavior of existing operators for user-defined types, a feature known as operator overloading. This allows operators such as +, -, *, and others to work naturally with classes, providing intuitive syntax for operations on objects.
+
+Key Rules:
+
+- Only existing operators can be overloaded. We cannot create new operators; we can only redefine the behavior of those already defined in the language.
+
+Examples of overloadable operators include:
+````
++  -  =  +=  *  /  %  []  ()  ^  !  &  <  <=  >  >=
+````
+
+- Operands must respect conventional arity: Operators cannot be redefined with a different number of operands than usual.For instance, there is no unary version of <code><=</code> and no binary version of <code>!</code>.
+
+- At least one operand must be a user-defined type : We cannot overload operators to work only with built-in types.
+
+````cpp
+//Example of illegal overloading:
+int operator+(int, int); // ❌ invalid: both operands are built-in types
+
+//Example of legal overloading with a user-defined type:
+Vector operator+(const Vector& a, const Vector& b); // ✅ valid
+````
+
+To summarize, operator overloading provides a mechanism to make user-defined types behave like built-in types in expressions, improving code readability and usability. However, overloading must follow strict rules to preserve the language’s semantics and avoid ambiguity.
+
+<i style="color:#2E86C1;">Suggestions</i>
+
+- Overload operators only with their conventional meaning + should be addition, * be multiplication, [] be access, () be call, etc.
+- Don’t overload unless we really have to.
+- Don’t overload , * && || ! . Operand-evaluation are not preserved and short circuit does not work anymore.
+
+SEE THE LAST PAGES OT THE SLIDES 6
+
+
+## 5. INTERFACE ?????? and HELPER FUNCTIONS. See 6  slide 38
 
 
 __________________________________________________
+
 Advanced Classes
 
 classess members are private by default
