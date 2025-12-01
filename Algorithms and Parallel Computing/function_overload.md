@@ -1,142 +1,156 @@
-functions with defaul parameters
+<div align="center">
+<h1> Function Overload.
+</div>
+<div align="center">
+    <em>Algorithms and Parallel Computing</em><br>
+    <em>Juan Pablo Vallejo Montañez</em><br>
+    <em>Notes from Politecnico di Milano 2025/2026 Y.</em><br>
+</div>
 
-Functions that have the same name but different parameters list and that appear in the same scope are overloaded
+<br>
 
-If theere are two differente decalrations with the smane name, the decalrario will be works in order to what is the strucutre of the invocation
+Functions (methods) that have the same name but different parameter lists and that appear in the same scope are overloaded.
 
-Overloaded function must differ in the number ir the type of their parameters.
+Function overloading means you we multiple functions with the same name but different parameter lists (different number or types of parameters). Each version of the function is a separate function, not a replacement of the previous one.
 
-It is an error for two functionsto differ only in terms of their retunr types
+````cpp
+void print(const string &s);
+void print(const int ia[], size_t size);
 
-Calling an overloaded function 
-5
- • Function matching (also known as overload resolution) is the process by 
-which a particular function call is associated with a specific function from a set 
-of overloaded functions
- • For any given call to an overloaded function, there are three possible 
-outcomes: 
-• the compiler finds exactly one function that is a best match
- • there is no function with parameters that match the arguments in the call. Error: no match
- • there is more than one function that matches and none of the matches is clearly best. 
-Error: ambiguous cal
+int j[2] = {0,1};
 
-Calling and overloading functio
+print("Hello World");    // calls print(const string &)
+print(j, 2);             // calls print(const int*, size_t)
+````
 
- void f();
- void f(int);
- void f(int, int);
- void f(double, double = 3.14); 
+<i>Note: Overloaded functions must differ in the number or the type(s) of their
+parameters. It is an error for two functions to differ only in terms of their return types.</i>
+
+````cpp
+Record lookup(const Account&);
+bool lookup(const Account&); // error: only the return type is different.
+````
+
+<i>Note: If there are two or more functions with the same name but different parameter lists, the compiler chooses which one to call based on the arguments provided in the function call. <strong>Function matching (also known as overload resolution)</strong> is the process by
+which a particular function call is associated with a specific function from a set
+of overloaded functions</i>
+
+For any given call to an overloaded function, there are three possible outcomes:
+- The compiler finds exactly one function that is a best match
+- There is no function with parameters that match the arguments in the call. Error: no match
+- There is more than one function that matches and none of the matches is clearly best.
+Error: ambiguous call.
+
+<strong>Candidate functions :</strong>All functions with the same name.
+
+<strong>Viable functions :</strong> The ones from that set that match the call’s arguments. A viable function must have the same number of parameters as there are arguments in the call, and the type of each argument must match or be convertible to the type of its corresponding parameter.
+
+````cpp
+// These are the candidate functiones for f(5.6)
+
+void f(); 
+void f(int);                     // Viable function.
+void f(int, int);
+void f(double, double = 3.14);   // Viable function.
+
 f(5.6); 
-• Identify the set of overloaded functions considered for the call:
- • candidate functions
- 6
- • Select from the set of candidate functions those that can be called with the 
-arguments in the given call: 
-• viable functions
+````
+- <code>f(int)</code> is viable because a conversion exists that can convert the argument
+of type double to the parameter of type <code>int</code>.
+- <code>f(double, double)</code> is viable because a default argument is provided for the
+function's second parameter and its first parameter is of type double, which
+exactly matches the type of the parameter.
 
- Viable functions: a function must have the same number of parameters as 
-there are arguments in the call, and the type of each argument must:
- • match
- • or be convertible to the type of its corresponding parameter
+Finding the best match: f(int) requires to convert the argument from double to int and f(double, double) is an exact match for this argument.
+ - An exact match is better than a match that requires a conversion. We call <code>f(double, double)</code>
 
 
-for this case the first and the last oprion are not viable fuctions beacuse the numner of parameters doent mathc
+<i style="color:#2E86C1;">Example</i>
 
-The second option can works beacuse, c¿¿ can convert the float to an int
+Given the call <code>f(42, 2.56);</code> and the previous candidate functions.The viable functions are <code>f(int, int)</code> and <code>f(double, double)</code>.
 
-     f(int) is viable because a conversion exists that can convert the argument 
-of type double to the parameter of type int
- • f(double, double) is viable because a default argument is provided for the 
-function's second parameter and its first parameter is of type double, which 
-exactly matches the type of the parameter
+There is an overall best match if there is one and only one function for which: 
+ - The match for each argument is no worse than the match required by any other viable function.
+ - There is at least one argument for which the match is better than the match provided by any other viable function. 
 
- Finding the best match, if any! 
-11
- • Finally look at each argument in the call and select the viable function (or 
-functions) for which the corresponding parameter best matches the argument
- • the closer the types of the argument and parameter are to each other, the better the match
- • f(int) requires to convert the argument from double to int
- • f(double, double) is an exact match for this argument
- • An exact match is better than a match that requires a conversion
- • We call f(double, double)!
+If after looking at each argument there is no single function that is preferable, 
+then the call is erroneous (ambiguous call).
 
+| **Viable Function** | **First Argument (42)** | **Second Argument (2.56)** |
+| ------------------- | ------------------ | ------------- |
+| <code>f(int,int)</code>        | Exact match |  Must be converted to <code>int<code> |
+| <code>f(double,double)</code>  | Must be converted to <code>double<code>| Exact match            |
 
- Function matching with multiple parameters
- • f(42, 2.56);
- • The viable functions are  f(int, int)  and   f(double, double)
- 12
- • There is an overall best match if there is one and only one function for which: 
-• the match for each argument is no worse than the match required by any other viable 
-function 
-• there is at least one argument for which the match is better than the match provided by any 
-other viable function 
-• If after looking at each argument there is no single function that is preferable, 
-then the call is erroneous (ambiguous call)
+Finally, the compiler will reject this call because it is ambiguous. In well-designed systems, argument casts should not be necessary
 
-Function matching with multiple parameters
- • Consider the first argument
- • f(int, int) is an exact match
- • f(double, double): the int argument 42 must be converted to double
- • A match through a built-in conversion is “less good” than one that is exact
- • Consider the second argument
- • f(double, double) is an exact match to the argument 2.56
- • f(int, int):  the double argument 2.56 must be converted from double to int
- • The compiler will reject this call because it is ambiguous
- • In well-designed systems, argument casts should not be necessary
+## Overloading and const parameters
 
+When a function parameter is passed by value, a top-level const does not affect the function signature.
 
-  Overloading and const parameters
- 14
- • A parameter that has a top-level const is indistinguishable from one without a 
-top-level const
- Record lookup(Phone);
- Record lookup(const Phone);    
-// redeclares Record lookup(Phone)
-Constructors and Classes Advanced Topics
- Overloading and const parameters
- 15
- • We can overload based on whether the parameter is a reference (or pointer) to the 
-const or non-const version of a given type
- Record lookup(Account&);            
-Record lookup(const Account&);      
-// function that takes a reference to Account 
-// new function that takes a const reference 
-• The non-const version will not be viable for const actual parameters;
- • Either version is viable for on a non-const actual parameter, but the non-const 
+ - Top-level const = the parameter itself is const.
+ - Low-level const = the object it points to or refers to is const.
+
+ ````cpp
+Record lookup(Phone);        // parameter passed by value
+Record lookup(const Phone);  // parameter passed by value, top-level const
+````
+
+Both declarations are effectively the same because passing by value makes a copy of the argument inside the function.Making the copy const does not change the function signature from the compiler’s perspective.<strong> That’s why the second declaration redeclares the first — it’s not a new overload.</strong>
+
+In C++, you can create different overloads of a function depending on whether a parameter is a const reference/pointer or a non-const reference/pointer.
+
+````cpp
+Record lookup(Account&);       // function that takes a reference to Account
+Record lookup(const Account&); // new function that takes a const reference 
+````
+The non-const version will not be viable for const actual parameters. Either version is viable for on a non-const actual parameter, but the non-const
 version will be a better match
- Account a;
- const Account ca;
- lookup(a);           // calls the non-const version, lookup(Account&)
- lookup(ca);          // calls the const version, lookup(const Account&)
-Constructors and Classes Advanced Topics
- Overloading member functions
- • As with nonmember functions, member functions may be overloaded 
-16
- • The same function-matching process is used for calls to member functions as for nonmember 
-functions
- class Screen{
- private:
- unsigned x, y;
- char content[40][80];
- public:
- };
- char get() const;
- char get(unsigned x, unsigned y) const;
- Screen myscreen;
- char ch = myscreen.get();     // calls Screen::get()
- // calls Screen::get(unsigned, unsigned)
- ch = myscreen.get(0,0);       
-Constructors and Classes Advanced Topics
- Overloading based on const
- • We can overload a member function based on whether it is const 
+
+````cpp
+Account a;
+const Account ca;
+lookup(a);             // calls the non-const version, lookup(Account&)
+lookup(ca);            // calls the const version, lookup(const Account&)
+````
+
+In the first case, where a is a non-const object, both overloads are technically viable:
+
+- <code>func(Phone& p)</code>→ exact match
+- <code>func(const Phone& p)</code> → works too, because a non-const object can be treated as const
+
+The compiler prefers the non-const version because it is an exact match. Choosing the const version would require an implicit conversion (treating a non-const object as const), which is less preferred.
+
+## Overloading and const parameters
+As with nonmember functions, member functions may be overloaded.The same function-matching process is used for calls to member functions as for nonmember functions.
+
+ ````cpp
+class Screen{
+     private:
+     unsigned x, y;
+     char content[40][80];
+     public:
+     char get() const;
+     char get(unsigned x, unsigned y) const;
+};
+
+Screen myscreen;
+char ch = myscreen.get();     // calls Screen::get()
+ch = myscreen.get(0,0);       // calls Screen::get(unsigned, unsigned)
+
+ ````   
+## Overloading based on const
+
+We can overload a member function based on whether it is const.
+
+````cpp
 class C{
- public:
- f() const;
- f(); 
+     public:
+     f() const;
+     f(); 
 }
- • The non-const version will not be viable for const objects;
- • on a const object we can only call const member functions
- 17
- • We can call either version on a non-const object, but the non-const version 
+````
+
+The non-const version will not be viable for const objects ( on a const object we can only call const member functions ).
+We can call either version on a non-const object, but the non-const version 
 will be a better match
 

@@ -1,5 +1,5 @@
 <div align="center">
-<h1> Pointersm, References and Function Parameters
+<h1> Pointers, References and Function Parameters
 </div>
 <div align="center">
     <em>Algorithms and Parallel Computing</em><br>
