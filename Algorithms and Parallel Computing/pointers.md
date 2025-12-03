@@ -460,6 +460,8 @@ r1 = 0;              // r1 is not const; i is now 0
 r2 = 0;              // error: r2 is a reference to const
 ````
 
+ - When you use `const` at the end of a member function, it means that the method will not modify the object it belongs to.
+
 # 5. Variable's Scope.
 
 <div align="justify">

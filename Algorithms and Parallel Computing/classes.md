@@ -173,7 +173,8 @@ A <strong>constructor</strong> is a special method that creates an instance of a
  - A class can have multiple constructors with different parameters (overloaded constructors).
  - Constructors can have parameters (for example, to initialize data members with specific values).
  - If no constructor is defined by the programmer, C++ automatically provides a default constructor — one that takes no parameters and does nothing special.
- - When you use `const` at the end of a member function, it means that the method will not modify the object it belongs to.
+
+See [Complete Section](#6-constructors).
 
 ## 1.4 Destructor.
 
@@ -587,346 +588,420 @@ int w = (*px).mf(); // error: mf is private (i.e., inaccessible)
 int z = px->mf(); // error: mf is private (i.e., inaccessible
 ____________________________________________________
 
-CONSTRUCTUS
+## 6. Constructors.
 
-Similar to the funcition overlading we can have multilconstructors
+<strong>The constructor have the same name as the class and unlike other functions, constructors have no return type
+.</strong>
 
-Unlike other memeber functions, constructors may not be const.
-a const mehtond oesnot modify object and the constructur build the object (modify the object). Its obivusly 
+Like other functions, constructors have:
+ - a (possibly empty) parameter list.
+ - a (possibly empty) function body.
 
-constructor can write to const objects dirung the constructio
+In the [first part](#13-constructor) we said a class can have multiple constructors with different parameters (overloaded constructors). This constructors may not be declared as <code>const</code>.
 
+The reason is <code>const</code> member functions promise not to modify the object, but the constructor’s job is to initialize the object, which inherently modifies it.
 
-Default Constructor
- •Classes control default initialization by defining a special constructor, known as the 
-default constructor
- •The default constructor takes no arguments
- •Example
-           Class Sales_data {
-               public:
-                   Sales_data(){ … } 
-                   // rest of the class
-           };
- •The default constructor is used when no explicit initialization is indicated, e.g.:
-          Sales_data sd;
+When we create a const object of a class type:
 
+````cpp
+const MyClass obj;
+````
 
-          The Role of the Default Constructor
- 8
- • The default constructor is used automatically whenever an object is default- or value- 
-initialized
- • Default initialization happens when: 
-• we define non-static variables or arrays at block scope without initializers 
-• a class that itself has members of class type uses the synthesized default constructor 
-• members of class type are not explicitly initialized in a constructor initializer list 
-• Value initialization happens:
- • during array initialization when we provide fewer initializers than the size of the array
- • when we define a local static object without an initializer
- • when we explicitly request value initialization by writing an expressions of the form T() where T is the 
-name of a type (e.g., vector)
- Classes must have a default constructor in order to be used in these contexts
-Constructors 
-Synthesized Default Constructor
- • It is necessary that there is at least one way to construct an object
- • That is, each class must have at least one constructor
- 9
- • If our class does not explicitly define any constructors, a default constructor will be 
-implicitly defined by the compiler 
-• The compiler-generated constructor is known as the synthesized default constructor. For 
+The object does not assume its constness until after the constructor finishes.This allows the constructor to write to and initialize the object’s members even if the final object is const.
+
+<i>Note: Constructors can modify all members, including those that will later be const, because the object is not yet fully constructed.</i>
+
+## 6.1 In-class initializer
+
+An in-class initializer is a way to provide a default value for a class member directly where it is declared inside the class.Instead of initializing members in every constructor, we can set a default value once in the class definition.
+
+If a constructor does not explicitly initialize a member, the in-class initializer is used. If a constructor does initialize the member, that value overrides the in-class initializer.
+
+````cpp
+class Sales_data {
+    public:
+        std::string get_bookNo() const {return bookNo;} 
+        Sales_data& operator+=(const Sales_data&);
+    private:
+        std::string bookNo;
+        unsigned units_sold = 0;
+        double revenue = 0.0;
+    }
+````
+
+<i>Note: We don’t have to write a constructor if you use in-class initializers.</i> I'M NOT SURE ABOUT THIS
+
+## 6.2 Default constructor.
+Classes control default initialization by defining a special constructor, known as the 
+default constructor. The default constructor takes no arguments.
+
+````cpp
+Class Sales_data {
+    public:
+        Sales_data(){ … } 
+        // rest of the class
+};
+````
+
+<i>Note: Default constructor is used when no explicit initialization is indicated, e.g.:
+<code>Sales_data sd;</code></i>
+
+The default constructor is used automatically whenever an object is default- or value-initialized.
+- Default initialization happens when: 
+  - We define non-static variables or arrays at block scope without initializers.
+  - A class that itself has members of class type uses the synthesized default constructor. 
+  - Members of class type are not explicitly initialized in a constructor initializer list.
+
+STUDY THIS
+
+- Value initialization happens:
+  - During array initialization when we provide fewer initializers than the size of the array.
+  - When we define a local static object without an initializer.
+  - When we explicitly request value initialization by writing an expressions of the form T() where T is the name of a type (e.g., vector).
+
+<strong>Note: Classes must have a default constructor in order to be used in these contexts.</strong>
+
+It is necessary that there is at least one way to construct an object. That is, each class must have at least one constructor. If our class does not explicitly define any constructors, a default constructor will be implicitly defined by the compiler.
+
+The compiler-generated constructor is known as the <strong>synthesized default constructor</strong>. For 
 most classes, this synthesized constructor initializes each data member of the class as 
 follows: 
-• If there is an in-class initializer, use it to initialize the member 
-• Otherwise, default-initialize the member
- Because Sales_data provides initializers for units_sold and revenue, 
-the synthesized default constructor uses those values to initialize those 
-members. It default-initializes bookNo to the empty string. 
-Constructors 
-10
- We cannot always rely on the Synthesized Default Constructor 
-• Only fairly simple classes can rely on the synthesized default constructor
- • The compiler generates the default constructor for us only if we do not 
-define any other constructors
- • If we define at least one constructor, the class will not have a default constructor unless we 
-define that constructor ourselves explicitly
- • Rationale: if a class requires control to initialize an object in one case, then the class is 
-likely to require control in all cases
-Constructors 
-11
- We cannot always rely on the Synthesized Default Constructor 
-• For some classes, the synthesized default constructor does the wrong thing:
- • E.g., objects of built-in or compound type (such as arrays and pointers) have undefined 
-value when they are default-initialized
- • We should initialize those members inside the class or define our own version of the 
-default constructor
- • Otherwise, we could create objects with members that have undefined value
- • Sometimes the compiler is unable to synthesize one
- • E.g., if a class has a member that has a class type, and that class doesn’t have a default 
-constructor, then the compiler can’t initialize that member
-Constructors 
-12
- Example where default constructor cannot be synthesized
- class NoDefault { 
-public: 
-NoDefault(const std::string&); 
-// additional members follow, but no other constructors
- }; 
+ - If there is an in-class initializer, use it to initialize the member. 
+ - Otherwise, default-initialize the member.
+
+````cpp
+class Sales_data {
+    public:
+        std::string get_bookNo() const {return bookNo;} 
+        Sales_data& operator+=(const Sales_data&);
+    private:
+        std::string bookNo;
+        unsigned units_sold = 0;
+        double revenue = 0.0;
+    }
+````
+
+In this example Sales_data provides initializers for units_sold and revenue, the synthesized default constructor uses those values to initialize those members. It default-initializes bookNo to the empty string. 
+
+
+
+We cannot always rely on the Synthesized Default Constructor. Only fairly simple classes can rely on the synthesized default constructor
+
+<strong style="color:#FF0000;">The compiler generates the default constructor for us only if we do not define any other constructors. If we define at least one constructor, the class will not have a default constructor unless we define that constructor ourselves explicitly ( a enos que lo definamos nosotros mismos)</strong>
+
+If a class requires control to initialize an object in one case, then the class is likely to require control in all cases (If we need a constructor to do something special sometimes, we probably need constructors for every object, not just some.)
+
+For some classes, the synthesized default constructor does the wrong thing:
+  - E.g., objects of built-in or compound type (such as arrays and pointers) have undefined value when they are default-initialized.We should initialize those members inside the class or define our own version of the default constructor. Otherwise, we could create objects with members that have undefined value
+  - Sometimes the compiler is unable to synthesize one
+    - E.g., if a class has a member that has a class type, and that class doesn’t have a default 
+constructor, then the compiler can’t initialize that member.
+STUDY THIS
+
+````cpp
+class NoDefault { 
+    public: 
+        NoDefault(const std::string&); 
+        // additional members follow, but no other constructors
+}; 
+
 struct A {   
-NoDefault my_mem;         
+    NoDefault my_mem;   // my_mem is public by default;
 }; 
-A a;           
-// my_mem is public by default;
- // error: cannot synthesize a constructor for A 
-• In practice, it is almost always right to provide our own default constructor if 
-other constructors are being defined
-Constructors 
-Defining the Sales_data Constructors
- • We’ll define three constructors with the following parameters: 
-13
- • A const string& representing an ISBN, an unsigned representing the count of how many 
-books were sold, and a double representing the price at which the books sold
- • A const string& representing an ISBN. This constructor will use default values for the 
-other members
- • An empty parameter list (i.e., the default constructor), which we must define because we 
-have defined other constructors
-Constructors 
-Defining the Sales_data Constructors
- Class Sales_data {
- public:
- Sales_data() = default; 
-14
- Sales_data(const std::string &s): bookNo(s) { } 
-Sales_data(const std::string &s, unsigned n, double p): 
-bookNo(s), units_sold(n), revenue(p*n) { } 
-// other members as before
- std::string get_bookNo() const { return bookNo; } 
-Sales_data& operator+=(const Sales_data&); 
-double avg_price() const;
- private:
- std::string bookNo;
- unsigned units_sold = 0; 
-double revenue = 0.0; 
+
+A a;                    // error: cannot synthesize a constructor for A 
+ ````
+
+<code>NoDefault</code> does not have a default constructor (NoDefault()). The only available constructor takes a <code>const std::string&.</code>. In struct A, the member my_mem is of type NoDefault, but A does not define any constructor.
+Therefore, when we write:
+
+````
+A a;
+````
+
+the compiler tries to synthesize a default constructor for A, which would default-initialize all of its members.
+But since my_mem requires a std::string argument, the compiler cannot default-initialize it, and the synthesis of A's default constructor fails.
+
+In other words, A is trying to initialize a NoDefault object without providing the required constructor argument, which makes the code ill-formed.That means we cannot create a NoDefault object without providing a string.
+
+
+## 6.3 Constructor Initializer List.
+
+A constructor initializer list (also called an initialization list) is the part of a C++ constructor that allows you to directly initialize data members and base classes before the constructor body runs.
+
+It appears after the constructor’s parameter list and before the constructor body, using a colon : followed by comma-separated initializers.
+
+````cpp
+class Foo {
+public:
+    int x;
+    std::string name;
+
+    Foo(int val, const std::string& str)
+        : x(val), name(str)    // ← initializer list
+    {
+        // constructor body
+    }
 };
-Constructors 
-Defining the Sales_data Constructors
- Class Sales_data {
- public:
- 15
- Constructor Initializer List 
-Sales_data() = default; 
-Sales_data(const std::string &s): bookNo(s) { } 
-Sales_data(const std::string &s, unsigned n, double p): 
-bookNo(s), units_sold(n), revenue(p*n) { } 
-// other members as before
- std::string get_bookNo() const { return bookNo; } 
-Sales_data& operator+=(const Sales_data&); 
-double avg_price() const;
- private:
- std::string bookNo;
- unsigned units_sold = 0; 
-double revenue = 0.0; 
+
+````
+<i style="color:#2E86C1;">Example - Books</i>
+
+````cpp
+Class Sales_data {
+    public:
+        Sales_data() = default;
+        Sales_data(const std::string &s): bookNo(s) { }
+        Sales_data(const std::string &s, unsigned n, double p):bookNo(s),units_sold(n),revenue(p*n){ }
+
+        // other members as before
+        std::string get_bookNo() const { return bookNo; }
+        Sales_data& operator+=(const Sales_data&);
+        double avg_price() const;
+    private:
+        std::string bookNo;           // default intializer
+        unsigned units_sold = 0;      // default intializer
+        double revenue = 0.0;         // default intializer
 };
-Constructors 
-Defining the Sales_data Constructors
- 16
- Class Sales_data {
- public:
- Sales_data() = default; 
-Sales_data(const std::string &s): bookNo(s) { } 
-Sales_data(const std::string &s, unsigned n, double p): 
-bookNo(s), units_sold(n), revenue(p*n) { } 
-// other members as before
- std::string get_bookNo() const { return bookNo; } 
-Sales_data& operator+=(const Sales_data&); 
-double avg_price() const;
- private:
- std::string bookNo;
- unsigned units_sold = 0; 
-double revenue = 0.0; 
-};
- Sales_data(const std::string &s): 
-bookNo(s), units_sold(0), revenue(0){ } 
-Constructors 
-Constructor Initializer List 
-// legal but sloppier way to write the Sales_data 
-// constructor: no constructor initializers 
-17
- Sales_data::Sales_data(const string &s, unsigned cnt, double price) 
+
+````
+
+ - <code>Sales_data()</code> is the default contructor.
+ - If the constructor takes a string argument,the object is initialized directly from the parameter <code>s</code> via the intializer list. The attribute <code>bookNo</code> will be intialized with the parameter <code>s</code> as well.
+
+ - If the constructor takes a string, an unsigned, and a double parameter, the object will be initialized using those values to initialize its attributes.
+
+<i>“When the first constructor is used, only bookNo is initialized.
+The members units_sold and revenue = 0.0 automatically initialize these data members to zero whenever a constructor does not explicitly initialize them. See the default intializer for each attribute.” </i>
+
+````cpp
+Sales_data(const std::string &s):bookNo(s), units_sold(0), revenue(0){ } 
+````
+
+El objeto original puede ser const o no const, no importa.
+La referencia que recibes lo trata como const mientras esté dentro del constructor.
+En otras palabras
+You cannot modify the object through that reference,
+but the original object itself is not made const. ACALARACION PARA ESTE PUNTO EN ESPAÑOL
+
+
+
+<i style="color:#2E86C1;">Initialization vs Assignment in Constructors</i>
+
+A constructor may initialize its data members either:
+
+ - Using a constructor initializer list.
+ - By assigning values inside the constructor body.
+
+<i>Example of assignment inside the constructor body (legal but sloppier):</i>
+
+````cpp
+// Legal but not recommended: uses assignment, not initialization
+Sales_data::Sales_data(const string &s, unsigned cnt, double price)
 {
- bookNo = s; 
-units_sold = cnt; 
-revenue = cnt * price; 
-} 
-• How significant this distinction is depends on the type of the data member
-Constructors 
-Constructor Initializer List 
-18
- • When we define variables, we typically initialize them immediately rather than 
-defining them and then assigning to them: 
-string foo = "Hello World!";    
-string bar;                     
-bar = "Hello World!";           
-// define and initialize
- // default initialized to the empty string 
-// assign a new value to bar 
-• Exactly the same distinction between initialization and assignment applies to 
-the data members of objects
- • if we do not explicitly initialize a member in the constructor initializer list, that member is 
-default-initialized before the constructor body starts executing
-Constructors 
-Constructor Initializers are sometimes required 
-19
- • We can often, but not always, ignore the distinction between whether a member is 
-initialized or assigned: 
-• Members that are const or references must be initialized
- • Members that are of a class type that does not define a default constructor also must be initialized 
-class ConstRef { 
-public: 
-ConstRef(int ii); 
-private: 
-int i;
- const int ci;
- int &ri; 
+    bookNo = s;
+    units_sold = cnt;
+    revenue = cnt * price;
+}
+````
+
+Using assignments inside the constructor body is generally discouraged when members could be initialized directly.
+
+
+The same distinction that exists for local variables applies to data members:
+
+````cpp
+string foo = "Hello World!";  // initialization
+string bar;                   // default-initialized to empty string
+bar = "Hello World!";         // assignment
+````
+
+Data members behave identically. Members listed in the initializer list are initialized.Members not listed are default-initialized before the constructor body runs.
+
+Assignments in the constructor body overwrite already-initialized members.
+
+<strong>If a data member is not explicitly initialized in the initializer list, it is default-initialized before the constructor body begins execution.This can matter for performance and correctness, especially for complex objects.</strong>
+
+There are situations in which members must be initialized in the initializer list.
+Specifically:
+ 
+ - <code>const</code> members
+ - Reference members (&)
+ - Members of a class type without a default constructor
+
+<strong style="color:#FF0000;">These cannot be assigned inside the body, so they must appear in the initializer list.
+</strong>
+
+Example:
+
+````cpp
+class ConstRef {
+public:
+    ConstRef(int ii);
+private:
+    int i;
+    const int ci;
+    int &ri;
 };
-Constructors 
-Constructor Initializers are sometimes required 
-20
- • The members ci and ri must be initialized. Omitting a constructor initializer for 
-these members is an error: 
-// error: ci and ri must be initialized 
+````
+
+Attempting to assign to these members inside the constructor body is an error:
+
+````cpp
+// ❌ Error: ci and ri must be initialized
 ConstRef::ConstRef(int ii)
- {    
-} 
-// assignments: 
-i  = ii;    // ok
- ci = ii;    
-ri = i;     
-// error: cannot assign to a const 
-// error: ri was never initialized 
-• The correct way to write this constructor is: 
-// ok: explicitly initialize reference and const members 
-ConstRef::ConstRef(int ii): i(ii), ci(ii), ri(i) { } 
-Constructors 
-Delegating Constructors 
-21
- • A delegating constructor uses another constructor from its own class to perform its 
-initialization
- class Sales_data { 
-public: 
-// non-delegating constructor initializes members from corresponding arguments 
-Sales_data(const std::string& s, unsigned cnt, double price): 
-bookNo(s), units_sold(cnt), revenue(cnt*price) { }
- // remaining constructors all delegate to another constructor 
-Sales_data(): Sales_data("", 0, 0) {} 
-Sales_data(const std::string& s): Sales_data(s, 0, 0){} 
-// other members as before 
-}; 
-Constructors 
-Constructors and initialization order
- 22
- • Initializer lists are run first but members are initialized in order as they appear
- in the class declaration (in some situations this might create a mess, use 
-the same order!)
- • Then, (non-static) data members are initialized in order of declaration in the 
-class definition according to in-class initializers
- • Finally, the body of the constructor is executed
- • If a constructor relies on a delegating constructor, the delegated constructor
- is executed first, then the control returns to the delegating constructor and its
- body is executed
-Constructors 
-Copy, Assignment, and Destruction
- 25
- • Classes also control what happens when we copy, assign, or destroy objects 
-of the class type
- • Objects are copied in several contexts:
- • when we initialize a variable 
-• when we pass or return an object by value 
-• when we use the assignment operator
- • Objects are destroyed:
- • when they cease to exist, such as when a local object is destroyed on exit from the block 
-in which it was created 
-• objects stored in a vector (or an array) are destroyed when that vector (or array) is 
-destroyed 
-• If we do not define these operations, the compiler will synthesize them for us
- • Ordinarily, the versions that the compiler generates for us execute by copying, assigning, 
-or destroying each member of the object
-Constructors 
-Copy, Assignment, and Destruction
- Sales_data total;  // variable to hold the running sum 
-Sales_data trans;  // variable to hold data for the next transaction 
-total = trans; 
-// default assignment for Sales_data is equivalent to: 
-total.bookNo = trans.bookNo; 
-total.units_sold = trans.units_sold; 
-total.revenue = trans.revenue; 
-26
-Constructors 
-Copy, Assignment, and Destruction
- • Some classes cannot rely on the synthesized versions:
- 27
- • the synthesized versions are unlikely to work correctly for classes that allocate resources 
-that reside outside the class objects themselves (e.g., use dynamic memory)
- • for the moment, if you need to use dynamic memory, use vectors or strings to manage the 
-necessary storage, we will get back to this issue
+{
+    i = ii;     // ok
+    ci = ii;    // error: cannot assign to a const
+    ri = i;     // error: ri was never initialized
+}
+````
+````cpp
+// ✔ Correct: explicitly initializes const and reference members
+ConstRef::ConstRef(int ii)
+    : i(ii), ci(ii), ri(i) { }
+````
+
+<i>Key Points</i>
+
+- Initialization happens before the constructor body runs.
+- Assignment happens inside the constructor body, after initialization.
+- Always prefer initialization when possible.
+- Some members (const, reference, no-default-constructor types) must be initialized and cannot be assigned later.
+- Using the initializer list is generally safer, more efficient, and sometimes required.
+
+## 6.4 Delegating Constructors 
+
+A delegating constructor uses another constructor from its own class to perform its initialization.
+````cpp
+class Sales_data { 
+    public: 
+        // non-delegating constructor initializes members from corresponding arguments 
+        Sales_data(const std::string& s, unsigned cnt, double price): bookNo(s), units_sold(cnt), revenue(cnt*price) { }
+        // remaining constructors all delegate to another constructor 
+        Sales_data(): Sales_data("", 0, 0) {} 
+        Sales_data(const std::string& s): Sales_data(s, 0, 0){} 
+        // other members as before 
+};
+````
+Initializer lists are run first but members are initialized in order as they appear in the class declaration (in some situations this might create a mess, use the same order!).
+
+Then, (non-static) data members are initialized in order of declaration in the class definition according to in-class initializers. Finally, the body of the constructor is executed. If a constructor relies on a delegating constructor, the delegated constructor is executed first, then the control returns to the delegating constructor and its body is executed.
+
+## 6.5 Copy, Assignment, and Destruction.
+
+Classes also control what happens when objects of the class type are copied, assigned, or destroyed.
+These operations occur frequently and automatically in C++.
+
+### 6.5.1 When Objects Are Copied
+
+An object of class type is copied in several situations:
+
+- Variable initialization
+
+````cpp
+Foo x = y;  // copy initialization
+````
+
+- Passing an object by value
+
+````cpp
+void f(Foo obj); // obj is a copy of the argument
+````
+
+- Returning an object by value
+
+````cpp
+Foo g() { return localFoo; } // localFoo is copied to the caller
+````
+
+- Copy-initializing elements inside containers: 
+e.g., pushing objects into a vector
+
+### 6.5.2 When Objects Are Assigned
+
+Using the assignment operator (operator=):
+
+````cpp
+x = y;   // assignment, not initialization
+````
+### 6.5.3 When Objects Are Destroyed
+
+An object is destroyed when:
+
+- It goes out of scope (e.g., local variables at the end of a block)
+- A container (vector, array, etc.) destroys its elements
+- Dynamically allocated objects are deleted (delete ptr)
+- Temporary objects created during expression evaluation are discarded
+- Destruction calls the class’s destructor.
+
+If the programmer does not define a copy constructor, a copy-assignment operator or a destructor,then the compiler will generate them automatically. Ordinarily, the versions that the compiler generates for us execute by copying, assigning,
+or destroying each member of the object.
+
+````cpp
+Sales_data total; // variable to hold the running sum
+Sales_data trans; // variable to hold data for the next transaction
+total = trans;
 
 
-Type Member
-________________________________________________
+// default assignment for Sales_data is equivalent to:
+total.bookNo = trans.bookNo;
+total.units_sold = trans.units_sold;
+total.revenue = trans.revenue
+````
 
-Type Aliases 
-29
- • A type alias is a name that is a synonym for another type. We can define a type 
-alias in one of two ways
- • Traditionally, we use a typedef
- typedef double wages;    
-// wages is a synonym for double
- typedef wages base, *p;  // base is a synonym for double, p for double* 
-• C++ 11 introduced a second way to define a type alias, via an alias declaration
- using SD = Sales_data;   // SD is a synonym for Sales_data 
-Constructors 
-Type Aliases 
-30
- • A type alias is a type name and can appear wherever a type name can appear
- wages hourly, weekly;  // same as double hourly, weekly; 
-SD item;               
-// same as Sales_data item; 
-Constructors 
-Defining a Type Member
- class Screen { 
-public: 
-typedef std::string::size_type pos;
- Screen() = default;          
-31
- // needed because Screen has another constructor 
-// cursor initialized to 0 by its in-class initializer 
-Screen(pos ht, pos wd, char c): height(ht), width(wd), contents(ht * wd, c) { } 
-char get() const { return contents[cursor]; }    
-char get(pos r, pos c) const; 
-private: 
-pos cursor = 0;
- pos height = 0, width = 0; 
-std::string contents; 
-// get the character at the cursor 
-}; 
-Constructors 
-Defining a Type Member
- class Screen { 
-public: 
-typedef std::string::size_type pos;
- Screen() = default;          
-32
- Members that define types must appear 
-before they are used
- // needed because Screen has another constructor 
-// cursor initialized to 0 by its in-class initializer 
-Screen(pos ht, pos wd, char c): height(ht), width(wd), contents(ht * wd, c) { } 
-char get() const { return contents[cursor]; }    
-char get(pos r, pos c) const; 
-private: 
-pos cursor = 0;
- pos height = 0, width = 0; 
-std::string contents; 
-// get the character at the cursor 
-};  
+Some classes cannot rely on the synthesized versions. The synthesized versions are unlikely to work correctly for classes that allocate resources that reside outside the class objects themselves (e.g., use dynamic memory).
+For the moment, if you need to use dynamic memory, use vectors or strings to manage the necessary storage, we will get back to this issue.
+
+
+## 7 Type Member.
+
+A type alias is simply an alternative name for an existing type.
+It does not create a new type—it just gives another identifier that refers to the same type.
+
+In C++, there are two main ways to define a type alias:
+
+- Using using (modern and recommended)
+
+````cpp
+using SD = Sales_data;   // SD is a synonym for Sales_data 
+````
+
+- Using typedef (older syntax)
+
+````cpp
+typedef double wages;    // wages is a synonym for double
+typedef wages base, *p;  // base is a synonym for double, p for double*
+````
+
+<i>Example</i>
+
+````cpp
+class Screen {
+    public:
+        typedef std::string::size_type pos;
+        Screen() = default; // needed because Screen has another constructor
+
+        // cursor initialized to 0 by its in-class initializer
+        Screen(pos ht, pos wd, char c): height(ht), width(wd), contents(ht * wd, c) { }
+        char get() const { return contents[cursor]; } // get the character at the cursor
+
+        char get(pos r, pos c) const;
+    private:
+        pos cursor = 0;
+        pos height = 0, width = 0;
+        std::string contents;
+};
+````
+<strong style="color:#FF0000;">Members that define types must appearbefore they are used
+</strong>
+
+
+This makes <code>pos</code> a type alias for std::string::size_type.
+
+std::string::size_type is an unsigned integer type used for string positions.Writing it every time is annoying and long.So the class defines an alias:  pos means “a position type”.
+
+____________________________________________________
 
 
 operator+ implementation (as plain helper function)
