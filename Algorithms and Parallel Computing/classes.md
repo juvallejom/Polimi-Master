@@ -1001,363 +1001,344 @@ This makes <code>pos</code> a type alias for std::string::size_type.
 
 std::string::size_type is an unsigned integer type used for string positions.Writing it every time is annoying and long.So the class defines an alias:  pos means “a position type”.
 
-____________________________________________________
 
+## 8. Nonmember functions and operator +.
 
-operator+ implementation (as plain helper function)
- class Sales_data {   // All code in Sales_data.h
- private:
- std::string bookNo; 
-unsigned units_sold;
- double revenue; 
-public:
- std::string get_bookNo() const;
- // other members and access specifiers as before (constructor, getters and setters)
- Sales_data& operator+=(const Sales_data&); 
+A nonmember function is simply a function that is NOT inside a class. It does not have access to:
+- this
+- private members of any class (unless made a friend)
+
+It behaves like a normal C/C++ free function. A nonmember function lives outside the class.
+
+<i style="color:#2E86C1;">operator +</i>
+
+In C++, we can redefine how operators behave for our own classes.
+
+````cpp
+a + b
+
+// is actually calling this function 
+
+operator+(a, b);
+
+````
+So operator+ is simply a function that defines how + works for your type.
+
+- As a member function. The function is defined inside the class
+
+````cpp
+class X {
+    public:
+        X operator+(const X &rhs) const;
 };
- // declarations for nonmember parts of the Sales_data interface 
+````
+Then a + b is interpreted as:`
+
+````cpp
+a.operator+(b); // it menas a+b
+````
+
+- As a nonmember function. Written outside the class:
+
+````cpp
+X operator+(const X &lhs, const X &rhs);
+````
+
+Then a + b becomes:
+
+````cpp
+operator+(a, b);
+````
+
+This does not require that the left operand is an X. Both operands are passed equally.
+
+<i style="color:#2E86C1;">Why is operator+ usually written as a nonmember?</i>
+
+Because addition is symmetric. If operator+ is a member function:
+
+````cpp
+//(a+b)
+//(b+a)
+a.operator+(b) // works
+b.operator+(a) // works only if b is an X
+````
+
+If operator+ is a nonmember, both operands are treated the same. That's why C++ Primer (and most modern C++) recommends:
+
+````cpp
+X operator+(const X&, const X&);
+````
+<i style="color:#2E86C1;">Why does a nonmember need friend?</i> 
+
+Because private members of the class cannot be accessed from outside.
+
+````cpp
+class X {
+private:
+    int value;
+};
+
+X operator+(const X &a, const X &b) {
+    return X{a.value + b.value};    // ❌ ERROR: cannot access private
+}
+````
+
+
+To allow the nonmember operator+ to read private members:
+````cpp
+class X {
+    friend X operator+(const X&, const X&);
+private:
+    int value;
+};
+````
+
+- Members defined after a <strong>public</strong> specifier are accessible to all parts of the
+program. Public members define the interface to the class
+- Members defined after a <strong>private</strong> specifier are accessible to the member functions of the class but are not accessible to code that uses the class. Private sections encapsulate (i.e., hide) the implementation
+- A class can allow another class or function to access its nonpublic members <strong>by making that class or function a friend.</strong>
+
+<i style="color:#2E86C1;">Example</i> 
+
+````cpp
+// All code in Sales_data.h
+class Sales_data { 
+    // friend declarations for nonmember Sales_data operations added
+    friend Sales_data operator+(const Sales_data&, const Sales_data&);
+    // other members and access specifiers as before
+    private:
+        std::string bookNo;
+        unsigned units_sold;
+        double revenue;
+    public:
+        std::string get_bookNo() const;
+        // other members and access specifiers as before (constructor, getters and setters)
+        Sales_data& operator+=(const Sales_data&);
+};
+// declarations for nonmember parts of the Sales_data interface
 Sales_data operator+(const Sales_data&, const Sales_data&);
-Matteo Rossi - Classes
- 4
- operator+ implementation  (as plain helper function)
- in Sales_data.cpp
- Sales_data operator+(const Sales_data& lhs, const Sales_data& rhs)
- {
- Sales_data ret;
- ret.set_bookNo(lhs.get_bookNo());
- ret.set_units_sold(lhs.get_units_sold() + rhs.get_units_sold()); 
-ret.set_revenue(lhs.get_revenue() + rhs.get_revenue()); 
-return ret;
- }
-Matteo Rossi - Classes
- friends
- 5
- • Members defined after a public specifier are accessible to all parts of the 
-program
- • public members define the interface to the class
- • Members defined after a private specifier are accessible to the member 
-functions of the class but are not accessible to code that uses the class
- • private sections encapsulate (i.e., hide) the implementation
- • A class can allow another class or function to access its nonpublic members 
-by making that class or function a friend 
-Matteo Rossi - Classes
- friends
- class Sales_data {   // All code in Sales_data.h
- // other members and access specifiers as before 
-private:
- std::string bookNo; 
-unsigned units_sold;
- double revenue; 
-public:
- 6
- std::string get_bookNo() const;
- // other members and access specifiers as before (constructor, getters and setters)
- Sales_data& operator+=(const Sales_data&); 
-};
- // declarations for nonmember parts of the Sales_data interface 
-Sales_data operator+(const Sales_data&, const Sales_data&); 
-*
-Matteo Rossi - Classes
- friends
- class Sales_data {   // All code in Sales_data.h
- // friend declarations for nonmember Sales_data operations added 
-friend Sales_data operator+(const Sales_data&, const Sales_data&);
- // other members and access specifiers as before 
-private:
- std::string bookNo; 
-unsigned units_sold;
- double revenue; 
-public:
- 7
- std::string get_bookNo() const;
- // other members and access specifiers as before (constructor, getters and setters)
- Sales_data& operator+=(const Sales_data&); 
-};
- // declarations for nonmember parts of the Sales_data interface 
-Sales_data operator+(const Sales_data&, const Sales_data&); 
-*
-Matteo Rossi - Classes
- friends
- 8
- • A friend declaration only specifies access. It is not a general declaration of the 
-function
- • If we want users of the class to be able to call a friend function, then we must also declare the 
-function separately from the friend declaration
- • We usually declare each friend (outside the class) in the same header as the class itself
- • This is why our Sales_data header provides a separate declaration (aside from the friend 
-declaration inside the class body) for operator+ 
-*
-Matteo Rossi - Classes
- operator+ implementation (declared as friend)
- in Sales_data.cpp
- Sales_data operator+(const Sales_data& lhs, const Sales_data& rhs)
- {
- Sales_data ret;
- ret.bookNo =  lhs.bookNo;
- ret.units_sold = lhs.units_sold + rhs.units_sold; 
-ret.revenue = lhs.revenue  + rhs.revenue; 
-return ret;
- }
- access to private members
- 9
-static Class Members
- Matteo Rossi - Classes 10
-Matteo Rossi - Classes
- static Class Members
- 11
- • Classes sometimes need members that are associated with the class, rather 
-than with individual objects of the class type
- • For example, a bank account class might need a data member to represent 
-the current prime interest rate
- • In this case, we’d want to associate the rate with the class, not with each 
-individual object
- • If the rate changes, we’d want each object to use the new value
- • Also, from a memory efficiency standpoint, there’d be no reason for each object to store the 
-rate
-Matteo Rossi - Classes
- static Class Members
- 12
- • We say a member is associated with the class by adding the keyword static 
-to its declaration
- • Like any other member, static members can be public or private
- • The type of a static data member can be const, reference, array, class type, 
-and so forth
- • We can also have static methods
-Matteo Rossi - Classes
- static Class Members
- class Account {
- public: 
-void calculate() { amount += amount * interest_rate; } 
-static double rate() { return interest_rate; }
- static void rate(double); 
-private:
- std::string owner;
- double amount;
- static double interest_rate; 
-static double init_rate(); 
-}; 
-13
-Matteo Rossi - Classes
- static Class Members
- class Account {
- public: 
-void calculate() { amount += amount * interest_rate; } 
-static double rate() { return interest_rate; }
- static void rate(double); 
-private:
- std::string owner;
- double amount;
- static double interest_rate; 
-static double init_rate(); 
-}; 
-Static member functions:
- 14
- • Are not bound to any object
- • Do not have a this pointer
- A declaration like this:
- static double rate() const;
- doesn't make any sense!!!
-Matteo Rossi - Classes
- static Class Members
- • We can access a static member directly through the scope operator:
- double r;
- r = Account::rate();  // access a static member using the
- // scope operator 
-15
- • Even though static members are not part of the objects of its class, we can 
-use an object, reference, or pointer of the class type to access a static 
-member: 
-Account ac1;
- Account *ac2 = &ac1;
- // equivalent ways to call the static member rate function
- // through an Account object or reference 
-r = ac1.rate();    
-r = ac2->rate();   
-// through a pointer to an Account object 
-Matteo Rossi - Classes
- static Class Members
- • Member functions can use static members directly, without the scope 
-operator: 
-class Account { 
-public: 
-void calculate() { amount += amount * interest_rate;  }
- // remaining methods as before 
-private: 
-static double interest_rate; 
-// remaining members as before 
-}; 
-16
-Matteo Rossi - Classes
- static Class Members
- 17
- • As with any other member function, we can define a static member function 
-inside or outside of the class body
- • When we define a static member outside the class, we do not repeat the 
-static keyword. The keyword appears only with the declaration inside the 
-class body: 
-void Account::rate(double new_rate) 
+````
+````cpp
+// Implementation in in Sales_data.cpp
+Sales_data operator+(const Sales_data& lhs, const Sales_data& rhs)
 {
- interest_rate = new_rate; 
-} 
-Matteo Rossi - Classes
- static Class Members
- 19
- • Because static data members are not part of individual objects of the class 
-type, they are not defined when we create objects of the class. As a result: 
-• they are not initialized by the class constructors
- • we may not initialize a static member inside the class
- • we must define and initialize each static data member outside the class body
- • like any other object, a static data member may be defined only once
- • Like global objects, static data members are defined outside any function
- • once they are defined, they continue to exist until the program completes
+ Sales_data ret;
+ ret.bookNo = lhs.bookNo;
+ ret.units_sold = lhs.units_sold + rhs.units_sold;
+ ret.revenue = lhs.revenue + rhs.revenue;
+ return ret;
+}
+````
+
+<i>Claims</i>
+- The functions <code>operator+=</code> and <code>operator</code> are completely different functions.
+- The friend declaration does not declare the function for use outside the class and neither does not define the function.
+<strong>It only grants access permission. This allows the nonmember function to write lhs.bookNo, lhs.units_sold and 
+lhs.revenue without error. Notice that these variables are private, meaning only members functions can access them. Nonmembers cannot access them unless they are declared as friends.</strong>
+- A friend declaration only specifies access. It is not a general declaration of the function.
+  - If we want users of the class to be able to call a friend function, then we must also declare the function separately from the friend declaration
+  - We usually declare each friend (outside the class) in the same header as the class itself
+  - This is why our Sales_data header provides a separat declaration (aside from the friend declaration inside the class body) for operator+
+
+## 9. static Class Members.
+
+[A static member in C++ is a member of a class (either a variable or a function) that belongs to the class itself, not to any specific object](#151-static-members). We say a member is associated with the class by adding the keyword <code>static</code>
+to its declaration.
+ - Like any other member, static members can be public or private
+ - The type of a static data member can be const, reference, array, class type, and so forth.
+ - We can also have static methods.
+
+ <i style="color:#2E86C1;">Static Member Function</i>
+
+ A static member function in a class is a function that belongs to the class itself, not to any specific object of that class. This function does not operate on individual objects — it operates on the class as a whole.
+
+ <i>Claims</i>
+  - They do not have a <code>this</code> pointer. Because they <strong>are not tied to any object</strong>. So inside a static function you cannot do this:
+ 
+````cpp
+value = 5;    // ❌ error if value is a non-static member
+````
+<strong>Only static data members can be accessed.</strong>
+
+<strong style="color:#FF0000;">Warning - Why static and const cannot appear together in a member function
+</strong>
+
+Static member functions belong to the class, not to any object thet don´t have <code>this</code> pointer.
+
+In the other hand, const member functions promise not to modify the object and apply to the implicit this pointer.
+
+<i>Key contradiction:</i> A const member function has a signature like:
+````cpp
+double rate() const;
+          ↑
+       means “this is const”
+````
+
+But a static function has NO this pointer. So adding const to a static function is meaningless. It's like saying: "....This function belongs to no object… but it promises not to modify the object.”
+
+This is logically impossible.So C++ forbids it.
+
+We must choose:
+ - Either const (requires an object) 
+ ````cpp
+double rate() const;   // OK (non-static) 
+````
+ - Or static (no object involved)
+ ````cpp
+static double rate();  // OK (static)
+````
+ - But NOT both
+ ````cpp
+static double rate() const;  // INVALID
+````
 
 
- The computer's memory (again)
- • As a program sees it
- • Local variables “live on the stack”
- • Global variables and static members are “static data”
- • The executable code is in “the code section”
- • “Free store” is managed by new and delete
- 20
-Matteo Rossi - Classes
- static Class Members
- 21
- • We define a static data member similarly to how we define class member 
-functions outside the class:
- • name the object’s type, followed by the name of the class, the scope operator, and the 
-member’s own name: 
+If the function does not depend on an object, declare it static:
+````cpp
+static double rate();
+````
+If the function does depend on the object but does not modify it:
+````
+double rate() const;
+````
+
+<i>Summary</i>:
+A static member function has no this pointer, so it cannot be const. Adding const to a static function has no meaning, and C++ forbids it.
+
+````cpp
+class Account {
+    public:
+        void calculate() { amount += amount * interest_rate; }
+        // A declaration like this: static double rate() const; doesn't make any sense!!!
+        static double rate() { return interest_rate; }
+        static void rate(double);
+    private:
+    std::string owner;
+        double amount;
+        static double interest_rate;
+        static double init_rate();
+}; 
+````
+We can access a static member directly through the scope operator:
+````cpp
+double r;
+r = Account::rate(); // access a static member using thescope operator
+````
+Even though static members are not part of the objects of its class, we can use an object, reference, or pointer of the class type to access a static member:
+````cpp
+ Account ac1;
+ Account *ac2 = &ac1;`
+
+ // equivalent ways to call the static member rate function
+ r = ac1.rate(); // through an Account object or reference
+ r = ac2->rate(); // through a pointer to an Account object 
+````
+
+
+<i>Note: Member functions can use static members directly, without the scope operator.</i>
+
+````cpp
+class Account {
+    public:
+        void calculate() { amount += amount * interest_rate; }
+        // remaining methods as before
+    private:
+        static double interest_rate;
+        // remaining members as before
+}; 
+````
+
+<i>Note: As with any other member function, we can define a static member function inside or outside of the class body. When we define a static member outside the class, we do not repeat the
+static keyword. The keyword appears only with the declaration inside the class body.</i>
+
+````cpp
+void Account::rate(double new_rate)
+{
+ interest_rate = new_rate;
+}
+````
+
+Because static data members are not part of individual objects of the class type, they are not defined when we create objects of the class. As a result:
+ - They are not initialized by the class constructors.
+ - We may not initialize a static member inside the class.
+ - We must define and initialize each static data member outside the class body.
+ - Like any other object, a static data member may be defined only once.
+ -  Like global objects, static data members are defined outside any function.
+ - Once they are defined, they continue to exist until the program completes.
+
+<strong style="color:green;">Note:Global variables and static members are “static data”.
+</strong>
+
+We define a static data member similarly to how we define class member functions outside the class:
+ - Name the object’s type, followed by the name of the class, the scope operator, and the member’s own name:
+ ````cpp
 // define and initialize a static class member
- double Account::interest_rate = init_rate(); 
-• The best way to ensure that the static members are defined exactly once is to 
-put the definition of static data members in the source (cpp) file
+double Account::interest_rate = init_rate();
+````
+- The best way to ensure that the static members are defined exactly once is to
+put the definition of static data members in the <strong>source (cpp) file</strong>.
+
+## 10. Class Scope
+A scope is a region of program text
+  - Global scope (outside any language construct, e.g., before main())
+  - Local scope (between { … } braces)
+  - Statement scope (e.g., in a for-statement)
+  - <strong>Class scope (within a class)</strong>
 
 
-SEE SLIDES
+ A name in a scope can be seen from within its scope and within scopes nested within that 
+scope.Only after the declaration of the name (“can’t look ahead” rule).<strong> Exception to this rule: class members can be used within the class before they are declared</strong>
 
-_____________________________________________________
-CLASS SCOPE
+A scope keeps <i>things</i> local.
+ - Prevents my variables, functions, etc., from interfering with yours
+ - Remember: real programs have many thousands of entities
+ - Locality is good!
+ - Keep names as local as possible
 
-Scope
- • A scope is a region of program text
- • Global scope (outside any language construct, e.g., before main())
- • Local scope (between { … } braces)
- • Statement scope (e.g., in a for-statement)
- • Class scope (within a class)
- 27
- • A name in a scope can be seen from within its scope and within scopes nested within that 
-scope
- • Only after the declaration of the name (“can’t look ahead” rule)
- • Exception to this rule: class members can be used within the class before they are declared
- • A scope keeps “things” local
- • Prevents my variables, functions, etc., from interfering with yours
- • Remember: real programs have many thousands of entities
- • Locality is good!
- • Keep names as local as possible
-Matteo Rossi - Classes
- Scope
- // get max and abs from algorithm and cstlib
- // no r, i, or v here
- class My_vector {
- public:
- int largest()                             
-// largest is in class scope
- {
- }
- int r = 0;                            
-for (int i = 0; i < v.size(); ++i)    
-r = max(r,abs(v[i])); 
-// no i here
- return r;
- // no r here
- private:
- vector<int> v;           
+
+````cpp
+// get max and abs from algorithm and cstlib
+// no r, i, or v here
+class My_vector {
+    public:
+        int largest()  {    // largest is in class scope
+            int r = 0;                              // r is local
+            for (int i = 0; i < v.size(); ++i)      // i is in statement scope
+                r = max(r,abs(v[i])); 
+            // no i here
+            return r;
+        }
+        // no r here
+        private:
+            vector<int> v;                         // v is in class scope
+    };
+    // no v here
+````
+
+ <i style="color:#2E86C1;">Example</i>
+
+
+````cpp
+// get max and abs from algorithm and cstdlib
+// no r, i, or v here
+class My_vector {
+    public:
+        int largest_buggy() {   // largest_buggy is in class scope
+            vector<int> v;                      // ❌ redeclarate v, content of the attribute is lost. its values are initialized to 0.    
+            int r = 0                           // r is local                 
+            for (int i = 0; i < v.size(); ++i)  // i is in statement scope   
+                r = max(r,abs(v[i])); 
+            // no i here
+            return r;
+        }
+        // no r here
+    private:
+    vector<int> v;     // v is in class scope             
 };
- // r is local
- // i is in statement scope
- // v is in class scope
- // no v here
- 28
-Matteo Rossi - Classes
- Scope
- // get max and abs from algorithm and cstdlib
- // no r, i, or v here
- class My_vector {
- public:
- int largest_buggy()                       
-// largest_buggy is in class scope
- {
- }
- vector<int> v;                      
-int r = 0                             
-for (int i = 0; i < v.size(); ++i)    
-r = max(r,abs(v[i])); 
-// no i here
- return r;
- // no r here
- private:
- vector<int> v;                  
-};
- // r is local
- // i is in statement scope
- // v is in class scope
- // no v here
- 29
-Matteo Rossi - Classes
- Scope
- // get max and abs from algorithm and cstlib
- // no r, i, or v here
- class My_vector {
- public:
- int largest_buggy()                       
-// largest_buggy is in class scope
- {
- }
- vector<int> v;                      
-int r = 0                             
-for (int i = 0; i < v.size(); ++i)    
-r = max(r,abs(v[i])); 
-// no i here
- return r;
- // r is local
- // i is in statement scope
- 30
- What is the value returned by largest_buggy()?
- // no r here
- private:
- vector<int> v;                  
-};
- // no v here
- // v is in class scope
-Matteo Rossi - Classes
- Scope
- // get max and abs from algorithm and cstlib
- // no r, i, or v here
- class My_vector {
- public:
- int largest_buggy()                       
-// largest_buggy is in class scope
- {
- }
- vector<int> v;                        
-int r = 0                             
-for (int i = 0; i < v.size(); ++i)    
-r = max(r,abs(v[i])); 
-// no i here
- return r;
- // no r here
- private:
- // redeclare v, content is lost
- // r is local
- // i is in statement scope
- 31
- 0
- (v is redeclared, its values are initialized to 0) 
-vector<int> v;                  
-};
- // no v here
+// no v here
+ ````
 
-
- Inhirence.
+## Inhirence.
 
   SEE SLIDES 10
 
