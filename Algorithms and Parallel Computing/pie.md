@@ -429,8 +429,124 @@ Ordinarily, a reference or pointer can bind only to an object of exactly the sam
 - Inheritance allows derived → base binding.
 - Base-class pointers/references can refer to derived objects because the base portion is embedded inside the derived object.
 
-QUEDE EN LA SLIDE 70 SGIUE LA 71
 
+## 4.1 Conversions and Inheritance — Study-Optimized Explanation
+
+Because a base-class reference or pointer can bind to a derived-class object, an important consequence follows: <strong>when we use that base-class reference or pointer, we do not know the actual type of the object it refers to.</strong> At run time, the bound object may be an instance of the base class itself, or any derived class. This uncertainty is what makes run-time polymorphism meaningful—the same base-class interface can operate on objects of different dynamic types.
+
+### 4.1.1 Static Type vs. Dynamic Type
+
+When working with inheritance, we must distinguish between two notions of type:
+
+- <i>Static type</i>
+    - Known at compile time.
+    - Determined by the variable's declaration or by the type an expression yields. 
+    - Never changes during program execution.
+
+- <i>Dynamic type</i>
+    - The actual type of the object in memory.
+    - For references and pointers, the dynamic type may differ from the static type.
+    - Not necessarily known until run time.
+
+This is the foundation of polymorphism: a variable with static type <code>Quote&</code> may actually refer to a <code>Bulk_quote</code> object.
+
+<i style="color:#2E86C1;">Example - print_total</i>
+
+In the call:
+
+````cpp
+double ret = item.net_price(n);
+````
+
+- The static type of item is Quote& (fixed by the function parameter).
+- The dynamic type depends on the object passed to the function at run time.
+
+If we call:
+
+````cpp
+Bulk_quote bulk;
+print_total(bulk, 10);
+````
+
+then:
+ - Static type of item → Quote&
+ - Dynamic type of item → Bulk_quote&
+
+This mismatch is what enables item.net_price(n) to call Bulk_quote::net_price via dynamic binding.
+
+<i>When Static and Dynamic Types Always Match</i>
+
+If an expression is neither a pointer nor a reference, its dynamic type is always the same as its static type.
+
+Examples:
+- A variable declared as Quote q; is always a Quote object.
+- No assignment or function call can change the type of that object—only its state.
+
+Thus, polymorphism only works through pointers and references, never through direct objects.
+
+If you'd like, I can now produce a one-page summary sheet for all inheritance & polymorphism topics, or convert this into LaTeX for your study notes.
+
+# 5. Abstract Classes
+
+A <strong>pure virtual function</strong> is a function declared in a base class without providing an implementation. It expresses behavior the base class cannot (or should not) define, and that must be implemented by any derived class that intends to create objects. In C++, a pure virtual function is written by assigning = 0 in its declaration:
+
+````cpp
+virtual void f() = 0;
+````
+
+<strong>A class that contains at least one pure virtual function is an abstract base class.</strong> Such a class cannot be instantiated—no objects of that type can exist. Instead, abstract base classes provide a common interface and serve as foundations for derived classes, which are responsible for supplying concrete implementations of the pure virtual functions.
+
+Key facts
+
+- A pure virtual function has no definition in the base class.
+- Derived classes must override it if they want to be concrete (i.e., able to create objects).
+- A class with one or more pure virtual functions becomes abstract.
+- <strong>Abstract classes cannot have objects, but derived classes can, provided they override all pure virtual functions.</strong>
+
+
+<i style="color:#2E86C1;">Example</i>
+
+````cpp
+// class to hold the discount rate and quantity
+// derived classes will implement pricing strategies using these data
+class Disc_quote : public Quote {
+    public:
+        Disc_quote() = default;
+        Disc_quote(const string& book, double price, size_t qty, double disc):
+        Quote(book, price), quantity(qty), discount(disc) { }
+        virtual double net_price(std::size_t) const = 0;
+    protected:
+        size_t quantity = 0;   // purchase size for the discount to apply
+        double discount = 0.0; // fractional discount to apply
+}; 
+````
+
+Because Disc_quote defines net_price as a pure virtual, we cannot define objects of type <code>Disc_quote</code> (is a abstract class).
+
+````cpp
+// Disc_quote declares pure virtual functions, which Bulk_quote will override
+Disc_quote discounted;  // error: can't define a Disc_quote object
+Bulk_quote bulk;        // ok: Bulk_quote has no pure virtual functions
+````
+We can define objects of classes that inherit from <code>Disc_quote</code>, only if those
+classes override net_price:
+
+<i>Refactoring</i>
+
+Introducing a class such as Disc_quote into the Quote hierarchy is an example of refactoring, a process in which we redesign a class structure to place operations or data in the class where they logically belong. Refactoring is common in object-oriented design as systems evolve and abstractions become clearer. A key advantage is that external code using classes like Quote or Bulk_quote often remains unchanged, because the public interface stays the same even as the internals are reorganized. However, after refactoring, any code that depends on the modified classes must be recompiled to reflect the updated hierarchy.
+
+Key ideas
+- Refactoring reorganizes a class hierarchy for better design.
+- Often involves moving behavior or data between classes.
+- User-facing code does not usually need modification.
+- But all dependent code must be recompiled after such structural changes.
+
+## 6. Summarize (Vey Important)
+
+- Inheritance is a mechanism for defining new class types to be a specialization
+or an augmentation of existing types
+- In principle, every member of a base class is inherited by a derived class with
+different access permissions, except for the constructors
 ___________________________________________________
 
 PORQUE SE DEJAN VARIABLES PRIVADAS
