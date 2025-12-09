@@ -1504,387 +1504,306 @@ return *this;
  • Here the return statement dereferences this to obtain the object on which the operator is 
 executing
 _______________________________________________________
-SMART POINTERS
+# 9. Smart Pointers.
 
- Memory management in C++
- 3
- • Most of the programs we’ve written so far have used objects that have well
-defined lifetimes
- • C++ lets us allocate objects dynamically
- • Dynamically allocated objects have a lifetime that is independent of where they are 
-created; they exist until they are explicitly freed
- • Programs use the free store or heap for objects that they dynamically 
-allocate (i.e., at run time)
- • The program controls the lifetime of dynamic objects
- • Code must explicitly destroy such objects when they are no longer needed
-Smart Pointers
- Pointers in action
- Kitten k_obj;
- Kitten* k1 = &k_obj;
- Kitten* k2 = new Kitten;
- Kitten* k3 = nullptr;
- heap
- k3 null
- k2
- k1
- stack
- 4
- k_obj
-Smart Pointers
- Memory management in C++
- 5
- • Properly freeing dynamic objects turns out to be a surprisingly rich source of 
-bugs
- • Biggest question is how to ensure that allocated memory will be freed when it 
-is no longer in use
- • If we forget to free the memory we have a memory leak
- • If we free the memory when there are still pointers referring to that memory, we have a 
-pointer that refers to memory that is no longer valid (dangling pointer)
- • If we subsequently delete the other pointers, then the free store may be corrupted
- • These kinds of errors are considerably easier to make than they are to find 
-and fix!!!
-Memory leakage
- double* calc(int result_size, int max)
- {
-    double* p = new double[max];   // allocate another max doubles
-                                   // i.e., get max doubles from the free store
-    double* result = new double[result_size]; 
-    // … use p to calculate results to be put in result …
-    return result;
- }
- double* r = calc(200,100);  // oops! We "forgot" to give the memory
-                         // allocated for p back to the free store
- Smart Pointers 6
-Memory leakage
- double* calc(int result_size, int max)
- {
-    double* p = new double[max];   // allocate another max doubles
-                                   // i.e., get max doubles from the free store
-    double* result = new double[result_size]; 
-    // … use p to calculate results to be put in result …
-    delete[] p;
-    return result;
- }
- double* r = calc(200,100);
- delete[] r;                         // easy to forget
- Smart Pointers 7
-Smart Pointers
- Memory leakage (another example)
- // factory returns a pointer to a dynamically allocated object 
-// the caller must remember to delete the memory
- Foo* factory(T arg) 
-{
- // process arg as appropriate 
-8
- return new Foo(arg); // caller is responsible for deleting this memory
- } 
-void use_factory(T arg) 
-{
- Foo *p = factory(arg);  // use p but do not delete it
- } // p goes out of scope, but the memory to which p points is not freed! 
-Smart Pointers
- Memory leakage (another example)
- // factory returns a pointer to a dynamically allocated object 
-// the caller must remember to delete the memory
- Foo* factory(T arg) 
-{
- // process arg as appropriate 
-9
- return new Foo(arg); // caller is responsible for deleting this memory
- } 
-void use_factory(T arg) 
-{
- Foo *p = factory(arg);
- delete p;
- }
-Smart Pointers
- Smart pointers
- 10
- • To make using dynamic objects safer, the library defines smart pointer types 
-that manage dynamically-allocated objects
- • Smart pointers ensure that the objects to which they point are automatically 
-freed when it is appropriate to do so
- • Goal: implement pointer-like objects in simple and leak-free programs 
-Smart Pointers
- Evolution of smart pointers
- • boost::scoped_ptr
- • std::auto_ptr   
-has problems with a C-style array!
- deprecated!
- • std::unique_ptr
- • std::weak_ptr
- • std::
- shared_ptr
- C++11
- 11
-Smart Pointers
- C++11 smart pointers
- • shared_ptr
- • allows multiple pointers to refer to the same object
- • unique_ptr
- • “owns” the object to which it points ⟶ advanced feature (APSC)
- • Both are defined in the memory header
- • Implemented through templates
- 12
-Smart Pointers
- What is a “smart pointer?”
- 13
- • Loose definition: object that behaves like a pointer, but somehow “smarter”
- • Major similarities to raw pointers:
- • Is bound to 0 or 1 objects at a time, often can be re-bound
- • Supports indirection: operator *, operator ->
- • Major differences:
- • Has some “smart feature”
- • Automatic deletion of the owned object
- • Iterators: it++
+Using raw pointers can lead to memory leaks.
+
+To make dynamic memory management safer, the C++ standard library provides smart pointers, which are objects that behave like raw pointers but automatically manage the lifetime of dynamically allocated data. Smart pointers free the memory they own when it is safe and appropriate to do so, greatly reducing the risk of memory leaks and dangling pointers. Their purpose is to offer pointer-like behavior while ensuring simpler, cleaner, and leak-free programs.
+
+<i>Key ideas</i>
+
+- Smart pointers manage dynamically allocated objects.
+- They automatically free memory at the right time.
+- They mimic pointer behavior but enforce safe ownership.
+
+<strong>Their goal is to eliminate common errors associated with raw pointers.</strong>
 
 
-The shared_ptr Class
- shared_ptr<string> p1;     
-// shared_ptr that can point at a string 
-shared_ptr<list<int>> p2;  // shared_ptr that can point at a list of ints 
+Evolution of Smart Pointers — Study-Optimized Explanation
+
+Smart pointers evolved gradually in C++ as the community looked for safer and more expressive ways to manage dynamic memory. Early solutions such as <code>boost::scoped_ptr</code> and <code>std::auto_ptr</code> provided partial safety but came with serious limitations—especially with ownership transfer and C-style arrays. 
+
+Modern C++ (C++11 and later) introduced the standard smart pointers we use today: <code>std::unique_ptr</code>, <code>std::shared_ptr</code>, and <code>std::weak_ptr.</code> These types offer clear ownership models, automatic memory management, and full template-based flexibility.
+
+<i>Timeline of Smart Pointer Evolution</i>
+
+1. <code>boost::scoped_ptr </code>
+- Early safe pointer.
+- Non-copyable, auto-cleanup.
+
+2. <code>std::auto_ptr</code> (deprecated)
+- C++98 solution
+- Broken ownership semantics (copy transfers ownership)
+- Unsafe, eventually removed
+
+3. <code>std::unique_ptr</code> (C++11)
+- Replaces auto_ptr
+- Exclusive ownership
+- Lightweight and very safe
+- Provides exclusive ownership of a resource.
+- Cannot be copied; can only be moved.
+- Very safe and lightweight.
+- Considered an adva   nced topic in many introductory programming courses.
+
+4. <code>std::shared_ptr</code> (C++11)
+
+- Allows multiple pointers to share ownership of the same dynamically allocated object.
+- Memory is freed automatically when the last shared_ptr owning the object disappears.
+- Shared ownership via reference counting
+- Multiple pointers can own the same object
+
+5. <code>std::weak_ptr</code> (C++11)
+- Non-owning reference to a shared_ptr object
+- Prevents circular references
+
+Common characteristics between <code>std::shared_ptr</code> and <code>std::unique_prt</code>
+
+- Declared in the <memory> header.
+- Implemented as class templates, meaning they work with any type.
+- Automatically manage memory to prevent leaks and dangling pointers.
+
+<i style="color:lime;">Summary</i>
+
+A smart pointer is an object that behaves like a regular pointer but adds additional “smart” features that make memory management safer and more automatic. Smart pointers still offer pointer-like semantics—such as binding to objects and supporting * and -> for indirection—but they differ from raw pointers in that they manage ownership and ensure the object they point to is properly deleted when no longer needed. This makes them safer and more convenient for dynamic memory management.
+
+Major similarities with raw pointers
+
+- Represents a connection to 0 or 1 objects, and can often be rebound.
+- Supports indirection through operator* and operator->.
+
+Major differences
+
+- Provides smart features, most importantly automatic deletion of the owned object.
+- Many smart pointers also behave like iterators (e.g., it++).
+
+## 5.1 shared_ptr Class
+std::shared_ptr is a smart pointer class in C++ that manages a dynamically allocated object through shared ownership. Multiple shared_ptr instances can refer to the same object, and the object is automatically destroyed when the last shared_ptr owning it goes out of scope. Internally, shared_ptr uses reference counting to track how many owners exist. This allows safe, automatic memory management for objects that need to be accessed or shared by multiple parts of a program.
+
+Key characteristics of shared_ptr
+
+- Supports shared ownership of the same object.
+- Uses reference counting to track how many owners remain.
+- Automatically deletes the object when the last owner disappears.
+- Behaves like a pointer (*, ->) but enforces safe lifetime management.
+- Can be copied and assigned freely; each copy increases the reference count.
+- Pairs well with std::weak_ptr to avoid circular references.
+
+
+````cpp
+shared_ptr<string> p1;    // shared_ptr that can point at a string 
+shared_ptr<list<int>> p2; // shared_ptr that can point at a list of ints 
+
 // if p1 is not null, check whether it's the empty string 
 if (p1 && p1->empty()) 
-15
- *p1 = "hi";  // if so, dereference p1 to assign a new value to that string 
-Smart Pointers
- The make_shared Function 
-• Safest way to allocate and use dynamic memory 
-16
- • Allocates and initializes an object in dynamic memory and returns a shared_ptr that points to that object 
+   *p1 = "hi";  // if so, dereference p1 to assign a new value to that string 
+ ````
+
+ ## 5.2 The make_shared Function.
+
+<code>make_shared</code> is the safest and most efficient way to create objects managed by <code>std::shared_ptr.</code> It allocates and initializes an object in dynamic memory and returns a <code>shared_ptr</code> that owns that object. Using <code>make_shared</code> avoids common memory-management errors, improves performance by combining allocations, and guarantees exception safety. For these reasons, it is the recommended way to create shared pointers in modern C++.
+
+<i>Key ideas</i>
+
+- Safest way to allocate dynamic objects for shared ownership.
+- Creates the object and its reference-count control block in one step (efficient + exception-safe).
+- Returns a shared_ptr that owns the newly created object.
+
+````cpp
 // shared_ptr that points to an int with value 42
- shared_ptr<int> p3 = make_shared<int>(42);
- // p4 points to a string with value "9999999999"
- shared_ptr<string> p4 = make_shared<string>(10, '9'); 
-// p5 points to an int that is value-initialized to 0 
-shared_ptr<int> p5 = make_shared<int>(); 
-// p6 points to a dynamically-allocated, empty vector<string> 
-auto p6 = make_shared<vector<string>>(); 
-auto p = make_shared<int>(42);   // object to which p points has one user 
-auto q(p);     
-// p and q point to the same object, object to which p and q point has two users 
-Smart Pointers
- shared_ptr implementation 
-17
- • We can think of a shared_ptr as if it has an associated counter, usually 
-referred to as a reference count
- • Whenever we copy a shared_ptr, the count is incremented
- • The counter is decremented when we assign a new value to the shared_ptr 
-and when the shared_ptr itself is destroyed (e.g., when a local shared_ptr 
-goes out of scope)
- • Once a shared_ptr counter goes to zero, the shared_ptr automatically 
-frees the object that it manages 
-This avoids memory leaks!
-shared_ptr operations
- Smart Pointers 19
- shared_ptr<T> sp Null smart pointer that can point to objects of type T
- p Use p as a condition; true if p points to an object
- *p Dereference p to get the object to which p points
- p->mem Same as (*p).mem
- p.get() Returns the pointer in p.  Be very careful!
- swap(p,q)
- p.swap(q)
- Swap the pointers in p and q
-shared_ptr operations
- Smart Pointers 20
- make_shared<T> args Returns a shared_ptr pointing to a dynamically allocated object of 
-type T; use args to initialize that object
- shared_ptr<T> p(q) p is a copy of the shared_ptr q; increments the count in q.
- The pointer in q must be convertible to T*
- p = q p and q are shared_ptrs  holding pointers that can be converted to 
-one another. 
-Decrements p's reference count and increments q's count; 
-deletes p's existing memory if p's count goes to 0
- p.unique() Returns true if p's count is one; false otherwise
- p.use_count() Returns the number of objects sharing with p;
- slow, use for debugging 
-Smart Pointers
- shared_ptr implementation 
-shared_ptrs automatically destroy their objects ... 
-...and automatically free the associated memory 
-// factory returns a shared_ptr pointing to a dynamically-allocated object 
-shared_ptr<Foo> factory(T arg) 
+shared_ptr<int> p3 = make_shared<int>(42);
+
+// p4 points to a string containing "9999999999"
+shared_ptr<string> p4 = make_shared<string>(10, '9');
+
+// p5 points to a value-initialized int (0)
+shared_ptr<int> p5 = make_shared<int>();
+
+// p6 points to a dynamically allocated empty vector<string>
+auto p6 = make_shared<vector<string>>();
+
+
+// Reference counting example
+auto p = make_shared<int>(42);  // object has one user
+auto q(p);                      // now two shared_ptrs own the same object
+````
+NO ETNIENDO BIEN ESTE EJEMPLO XD
+
+## 5.3 shared_ptr Implementation.
+
+Internally, a <code>shared_ptr</code> manages its resource through a reference count, which tracks how many shared_ptr objects share ownership of the same dynamically allocated object. Every time a shared_ptr is copied, the reference count increases; every time a shared_ptr is reassigned or destroyed, the count decreases. When the reference count finally reaches zero, meaning no shared_ptr owners remain, the managed object is automatically deleted.
+
+<i>Key behaviors</i>
+
+- Each shared_ptr has an associated reference count.
+- Copying a shared_ptr increments the count.
+- Destroying a shared_ptr or assigning it a new value decrements the count.
+- This avoids memory leak.
+
+When the count reaches zero, the managed object is freed automatically.
+
+## 5.4 Operations
+
+shared_ptr provides a set of pointer-like operations (dereferencing, member access, checking validity) along with ownership-related utilities (copying, swapping, counting owners). These operations allow shared_ptr to behave like a raw pointer while safely managing the lifetime of the object it owns.
+
+| Operation        | Meaning                                                                 |
+|------------------|-------------------------------------------------------------------------|
+| `shared_ptr<T> sp` | Creates a **null** smart pointer capable of pointing to `T`.            |
+| `p` (in a condition) | True if `p` owns an object; false if null.                            |
+| `*p`             | Dereferences `p` to access the managed object.                           |
+| `p->mem`         | Equivalent to `(*p).mem`.                                                |
+| `p.get()`        | Returns the raw pointer inside `p` — **use with extreme caution**.       |
+| `swap(p, q)` or `p.swap(q)` | Swaps the managed objects of `p` and `q`.                    |
+
+| Operation               | Meaning                                                                                               |
+|-------------------------|-------------------------------------------------------------------------------------------------------|
+| `make_shared<T>(args...)` | Safest way to allocate: returns a `shared_ptr` managing a dynamically allocated `T`.                 |
+| `shared_ptr<T> p(q)`    | Copy-constructs `p` from `q`; **increments** `q`’s reference count. Pointer in `q` must convert to `T*`. |
+| `p = q`                 | Assignment: decrements `p`’s count, increments `q`’s count; deletes `p`’s old object if count hits 0. |
+| `p.unique()`            | Returns `true` if the reference count is **1** (only `p` owns the object).                            |
+| `p.use_count()`         | Returns the number of shared owners; **slow**, use only for debugging.                                |
+
+<i style="color:#2E86C1;">Example</i>
+
+````cpp
+// factory returns a shared_ptr pointing to a dynamically-allocated object
+shared_ptr<Foo> factory(T arg)
 {
- // process arg as appropriate 
-// shared_ptr will take care of deleting this memory 
-return make_shared<Foo>(arg); 
-} 
-void use_factory(T arg) 
-{
- shared_ptr<Foo> p = factory(arg);   
-// use p 
-21
- // p goes out of scope; the memory to which p points is automatically freed 
-}   
-Smart Pointers
- shared_ptr implementation 
-shared_ptrs automatically destroy their objects ... 
-...and automatically free the associated memory 
-// factory returns a shared_ptr pointing to a dynamically-allocated object 
-shared_ptr<Foo> factory(T arg) 
-{
- // process arg as appropriate 
-// shared_ptr will take care of deleting this memory 
-return make_shared<Foo>(arg); 
-} 
-shared_ptr<Foo> use_factory(T arg)
- {
- shared_ptr<Foo> p = factory(arg);    // use p
- return p;                
-22
- // reference count is incremented when we return p
- }   // p goes out of scope; the memory to which p points is not freed
-Smart Pointers
- 23
- Classes with resources that have dynamic lifetime
- • Programs use dynamic memory for one of three purposes: 
-1. They don’t know how many objects they’ll need
- 2. They don’t know the precise type of the objects they need 
-3. They want to share data between several objects 
-vector<string> v1;    
-{ // new scope 
-// empty vector 
-vector<string> v2 = {"a", "an", "the"}; 
-v1 = v2;       
-// copies the elements from v2 into v1 
-}   // v2 is destroyed, which destroys the elements in v2 
-// v1 has three elements, which are copies of the ones originally in v2
-Smart Pointers
- 24
- Classes with resources that have dynamic lifetime
- • Some classes allocate resources with a lifetime that is independent of the 
-original object
- • Assume we want to define a class LPVector that will hold a collection of 
-elements
- • Unlike the vector, we want LPVector objects which are copies of one another 
-to share the same elements (Like-a-Pointer)
- • In the following we will consider a LPVector specialization to store string: 
-StrLPVector
-Smart Pointers
- 26
- Classes with resources that have dynamic lifetime
- • In general, when two objects share the same underlying data, we can’t 
-unilaterally destroy the data when an object of that type goes away
- StrLPVector b1;    
-{ // new scope 
-// empty StrLPVector 
-StrLPVector b2 = {"a", "an", "the"}; 
-b1 = b2;     
-// b1 and b2 share the same elements
- }  // b2 is destroyed, but the elements in b2 must not be destroyed 
-// b1 points to the elements originally created in b2 
-Smart Pointers
- Defining the StrLPVector Class
- • We can’t store the vector directly in a StrLPVector object
- • Members of an object are destroyed when the object itself is destroyed
- 27
- • If b1 and b2 are two StrLPVector that share the same vector, if that vector were stored in 
-one of those StrLPVector —say, b2— then that vector, and therefore its elements, would no 
-longer exist once b2 goes out of scope
- • To ensure that the elements continue to exist, we’ll store the vector in 
-dynamic memory
- • We’ll give each StrLPVector a shared_ptr to a dynamically-allocated vector
- • That shared_ptr member will keep track of how many StrLPVector share the same vector 
-and will delete the vector when the last StrLPVector using that vector is destroyed
-Defining the StrLPVector Class
- class StrLPVector { 
-public: 
-    typedef std::vector<std::string>::size_type size_type; 
-    StrLPVector();
-    StrLPVector(std::initializer_list<std::string> il); 
-    size_type size() const { return data->size(); }
-    bool empty() const { return data->empty(); }
-    // add and remove elements 
-    void push_back(const std::string &t) { data->push_back(t); } 
-    void pop_back() { data->pop_back(); }
-    // element access 
-    std::string& front() { return data->front(); }
-    std::string& back() { return data->back(); }
- private:
-    std::shared_ptr<std::vector<std::string>> data;
-    // write msg if data[i] isn't valid
- }; 
-Smart Pointers 28
-Smart Pointers
- StrLPVector Constructors
- StrLPVector::StrLPVector(): data(make_shared<vector<string>>()) { } 
-29
- StrLPVector::StrLPVector(initializer_list<string> il): 
-data(make_shared<vector<string>>(il)) { } 
-Smart Pointers
- 30
- Copying, assigning, and destroying StrLPVectors
- • StrLPVector uses the default versions of the operations that copy, assign, and 
-destroy objects of its type 
-• These operations copy, assign, and destroy the data members of the class (in this case 
-only its shared_ptr)
-Smart Pointers
- 31
- Copying, assigning, and destroying StrLPVectors
- • When we copy, assign, or destroy a StrLPVector, its shared_ptr member will 
-be copied, assigned, or destroyed
- • Copying a shared_ptr increments its reference count
- • Assigning one shared_ptr to another increments the count of the right-hand operand and 
-decrements the count in the left-hand operand
- • Destroying a shared_ptr decrements the count
- • If the count in a shared_ptr goes to zero, the object to which that shared_ptr 
-points is automatically destroyed
- • The vector allocated by the StrLPVector constructors will be automatically destroyed when 
-the last StrLPVector pointing to that vector is destroyed 
-Smart Pointers
- Be wary of shared ownership
- 32
- • Do not design your code to use shared ownership without a very good reason
- • One such reason is to avoid expensive copy operations, but you should only do this if the 
-performance benefits are significant, and the underlying object is immutable (i.e. 
-shared_ptr<const Foo>)
- • In many cases copies can be avoided by correctly using references
- • If you do use shared ownership, preferably use shared_ptr
-Smart Pointers
- shared_ptr and built-in pointers
- • The smart pointer constructors that take pointers are explicit
- 33
- • We cannot implicitly convert a built-in pointer to a smart pointer; we must use the 
-direct form of initialization to initialize a smart pointer
- shared_ptr<int> p1 = new int(1024); // error: must use direct 
-//        
-initialization
- shared_ptr<int> p2(new int(1024));  // ok: uses direct initialization 
-• The initialization of p1 implicitly asks the compiler to create a shared_ptr from 
-the int* returned by new. Because we can’t implicitly convert a pointer to a 
-smart pointer, this initialization is an error
-Smart Pointers
- shared_ptr and built-in pointers
- 34
- • For the same reason, a function that returns a shared_ptr cannot implicitly convert 
-a plain pointer in its return statement: 
-shared_ptr<int> clone(int p) { 
-// error: implicit conversion to shared_ptr<int> 
-return new int(p);
- } 
-• We must explicitly bind a shared_ptr to the pointer we want to return: 
-shared_ptr<int> clone(int p) {
- // ok: explicitly create a shared_ptr<int> from int* 
-return shared_ptr<int>(new int(p)); 
+ // process arg as appropriate
+ // shared_ptr will take care of deleting this memory
+ return make_shared<Foo>(arg);
 }
-Smart Pointers
- Don’t Mix Ordinary Pointers and Smart Pointers! 
-35
- • A shared_ptr can coordinate destruction only with other shared_ptrs that are 
-copies of itself
- • This fact is one of the reasons it is recommended to use make_shared rather than new
- • We bind a shared_ptr to the object at the same time that we allocate it
- • There is no way to inadvertently bind the same memory to more than one independently
-created shared_ptr
- It is dangerous to use a built-in pointer to access an object owned by a 
-smart pointer, because we may not know when that object is destroyed
-Smart Pointers
- Which type of pointer should I use?
- • Raw Pointer:
- • When you need to store addresses of existing variables
- int a = 10;
- int* ptr_a = &a;
- *ptr_a = 15;
- • Smart pointer:
- • When you want to declare a new dynamic variable
- shared_ptr<int> ptr_a = make_shared<int>(10);
+void use_factory(T arg)
+{
+ shared_ptr<Foo> p = factory(arg); // use p
+} // p goes out of scope; the memory to which p points is automatically freed 
+````
+<i>Note: Programs use dynamic memory for one of three purposes:
+1. They don’t know how many objects they’ll need
+2. They don’t know the precise type of the objects they need
+3. They want to share data between several objects </i>
+
+## 5.5 StrLPVector Class
+
+Some classes allocate resources with a lifetime that is independent of the
+original object.
+
+Assume we want to define a class <code>LPVector</code> that will hold a collection of elements. Unlike the vector, we want <code>LPVector</code> objects which are copies of one another
+to share the same elements (Like-a-Pointer). In the following we will consider a <code>LPVector</code> specialization to store string: <code>StrLPVector</code>.
+
+<i>Deep Explanation
+
+<code>std::vector</code> copies its elements when we copy a vector.If we do <code>v2 = v1</code>, then v2 gets its own independent copy of all elements.
+
+But now we want a different behavior. We want a class <code>LPVector</code> where copies share the same underlying data.It's means if we copy an <code>LPVector</code>, the new object does not get its own separate list of elements. Instead, both LPVector objects point to the same collection internally. (Like a pointer → shared underlying storage.)
+
+This is why we say:
+
+“LPVector objects which are copies of one another share the same elements (Like-a-Pointer).”
+
+So LP means “Like Pointer”.</i>
+
+<strong> In general, when two objects share the same underlying data, we can’t
+unilaterally destroy the data when an object of that type goes away</strong>
+
+````cpp
+StrLPVector b1; // empty StrLPVector
+{ // new scope
+ StrLPVector b2 = {"a", "an", "the"};
+ b1 = b2; // b1 and b2 share the same elements
+} // b2 is destroyed, but the elements in b2 must not be destroyed
+// b1 points to the elements originally created in b2
+````
+
+### 5.5.1 We can’t store the vector directly in a StrLPVector object
+
+We cannot store the actual vector inside a <code>StrLPVector</code> object because the members of an object are destroyed when the object itself is destroyed.
+
+If two <code>StrLPVector</code> objects—say b1 and b2—are meant to share the same underlying vector, then that vector must not belong to either object directly. Otherwise, if the vector were stored inside one of them (for example inside b2), then the shared vector would be destroyed as soon as b2 goes out of scope. As a result, b1 would be left pointing to data that no longer exists.
+
+
+Even shorter version
+- If the vector is a member of b2, it gets destroyed when b2 is destroyed.
+- But b1 is supposed to share the same vector.
+- So if the vector were inside b2, b1 would end up referencing destroyed memory.
+- Therefore, the shared vector must be stored outside the StrLPVector objects—usually in dynamic memory.
+
+<strong>To ensure that the elements continue to exist, we’ll store the vector in dynamic memory.</strong>
+
+Solution
+Each <code>StrLPVector</code> object will hold a shared_ptr that points to a dynamically allocated vector. This shared_ptr automatically keeps track of how many <code>StrLPVector</code> instances are sharing the same underlying vector. When the last <code>StrLPVector</code> that refers to that vector is destroyed, the shared_ptr will detect that no owners remain and will automatically delete the vector.
+
+````cpp
+class StrLPVector {
+   public:
+      typedef std::vector<std::string>::size_type size_type;
+      StrLPVector();
+      StrLPVector(std::initializer_list<std::string> il);
+      size_type size() const { return data->size(); }
+      bool empty() const { return data->empty(); }
+      // add and remove elements
+      void push_back(const std::string &t) { data->push_back(t); }
+      void pop_back() { data->pop_back(); }
+      // element access
+      std::string& front() { return data->front(); }
+      std::string& back() { return data->back(); }
+   private:
+      std::shared_ptr<std::vector<std::string>> data;
+      // write msg if data[i] isn't valid
+}; 
+
+
+///// Constructors
+StrLPVector::StrLPVector(): data(make_shared<vector<string>>()) { }
+StrLPVector::StrLPVector(initializer_list<string> il):
+ data(make_shared<vector<string>>(il)) { }
+````
+- StrLPVector uses the default versions of the operations that copy, assign, and destroy objects of its type. These operations copy, assign, and destroy the data members of the class (in this case
+only its <code>shared_ptr</code>)
+
+When a StrLPVector is copied, assigned, or destroyed, the same happens to its internal shared_ptr. Because shared_ptr manages shared ownership, all the usual reference-count rules apply: copying a shared_ptr increases its reference count, assigning one shared_ptr to another increases the count of the right-hand side and decreases the count of the left-hand side, and destroying a shared_ptr decreases its count. When the count reaches zero, the shared_ptr automatically deletes the object it owns. As a result, the vector allocated by the StrLPVector constructors will be destroyed automatically when the last StrLPVector sharing that vector goes out of scope.
+
+
+Shared ownership should be used sparingly and only when truly justified. A valid reason might be avoiding expensive copy operations—but this is safe only when the shared object is immutable, for example when storing a shared_ptr<const Foo>. In many situations, copying can be avoided more simply by using references instead of introducing shared ownership. However, if shared ownership is genuinely required, shared_ptr is the preferred and safest tool.
+
+The constructors of shared_ptr that take raw pointers are explicit, which means a built-in pointer cannot be implicitly converted into a shared_ptr. As a result, we must always use direct initialization when creating a shared_ptr from a raw pointer.
+
+````cpp
+shared_ptr<int> p1 = new int(1024);   // error: implicit conversion not allowed
+shared_ptr<int> p2(new int(1024));    // ok: direct initialization
+````
+
+In the first line, the compiler attempts to implicitly convert the int* returned by new into a shared_ptr<int>, which is forbidden. Because the conversion is explicit, only the second form — using direct initialization — is valid
+
+For the same reason that you cannot implicitly initialize a shared_ptr from a raw pointer, a function that returns a shared_ptr also cannot implicitly convert a plain pointer in its return statement. For example:
+
+````cpp
+shared_ptr<int> clone(int p) {
+    return new int(p);   // error: implicit conversion to shared_ptr<int>
+}
+````
+
+Here, new int(p) produces an int*, and the compiler would need to implicitly turn that pointer into a shared_ptr<int>. Because the constructor is explicit, this is not allowed.
+
+To return a shared_ptr, we must explicitly construct it from the pointer:
+
+````cpp
+shared_ptr<int> clone(int p) {
+    return make_shared<int>(p);   // safest and most efficient
+}
+````
+make_shared avoids subtle memory-management issues and is exception-safe.
+
+Don’t Mix Ordinary Pointers and Smart Pointers
+
+<strong style="text-indent: 30px;color:#FF0000;">
+A shared_ptr can coordinate the destruction of its managed object only with other shared_ptr instances that are copies of the same original shared_ptr. This is one of the main reasons why make_shared is preferred over using new: with make_shared, allocation and ownership begin at the same moment, ensuring that the memory is bound to one and only one shared_ptr controller. This prevents accidental creation of multiple independent shared_ptrs that point to the same raw pointer—an error that leads to double deletion or memory corruption.
+
+Because a smart pointer controls the lifetime of the object it owns, using a raw pointer to access that same object is dangerous: we may dereference a pointer to an object that has already been destroyed.
+
+Key ideas
+- A shared_ptr coordinates destruction only with other copies of itself.
+- Using make_shared prevents accidentally binding the same raw pointer to multiple shared_ptrs.
+- Never mix raw pointers with smart pointers when referring to the same object.
+- A raw pointer gives no information about the object’s lifetime; a smart pointer does.
+
+</strong>
