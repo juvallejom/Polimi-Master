@@ -954,7 +954,7 @@ Some classes cannot rely on the synthesized versions. The synthesized versions a
 For the moment, if you need to use dynamic memory, use vectors or strings to manage the necessary storage, we will get back to this issue.
 
 
-## 7 Type Member.
+# 7 Type Member.
 
 A type alias is simply an alternative name for an existing type.
 It does not create a new type—it just gives another identifier that refers to the same type.
@@ -1002,7 +1002,7 @@ This makes <code>pos</code> a type alias for std::string::size_type.
 std::string::size_type is an unsigned integer type used for string positions.Writing it every time is annoying and long.So the class defines an alias:  pos means “a position type”.
 
 
-## 8. Nonmember functions and operator +.
+# 8. Nonmember functions and operator +.
 
 A nonmember function is simply a function that is NOT inside a class. It does not have access to:
 - this
@@ -1140,7 +1140,7 @@ lhs.revenue without error. Notice that these variables are private, meaning only
   - We usually declare each friend (outside the class) in the same header as the class itself
   - This is why our Sales_data header provides a separat declaration (aside from the friend declaration inside the class body) for operator+
 
-## 9. static Class Members.
+# 9. static Class Members.
 
 [A static member in C++ is a member of a class (either a variable or a function) that belongs to the class itself, not to any specific object](#151-static-members). We say a member is associated with the class by adding the keyword <code>static</code>
 to its declaration.
@@ -1278,7 +1278,7 @@ double Account::interest_rate = init_rate();
 - The best way to ensure that the static members are defined exactly once is to
 put the definition of static data members in the <strong>source (cpp) file</strong>.
 
-## 10. Class Scope
+# 10. Class Scope
 A scope is a region of program text
   - Global scope (outside any language construct, e.g., before main())
   - Local scope (between { … } braces)
@@ -1342,7 +1342,487 @@ class My_vector {
 
   SEE SLIDES 10
 
+# 11. Copy Control.
 
+Every class defines a new type along with the operations that objects of that type can perform. Part of this control includes specifying what should happen when objects are copied, assigned, or destroyed. Classes govern these behaviors through a set of special member functions: <strong>the copy constructor, the assignment operator, and the destructor</strong>. Together, these functions are known as copy control.
+
+If a class does not explicitly define all of its copy-control operations, <i>the compiler automatically generates the missing ones</i>. This means many classes can safely ignore copy control altogether and rely on the defaults. However, for classes that manage resources such as dynamic memory, file handles, or shared state, using the default behavior can lead to serious errors—such as double deletion, memory leaks, or shallow copies.
+
+<strong>In practice, the hardest part of working with copy control is not writing the functions, but recognizing when you actually need to define them.</strong>
+
+````cpp
+Sales_data trans, accum;
+trans = accum; // uses the Sales_data copy-assignment operator 
+````
+
+## 11.1 The Synthesized Copy-Assignment Operator.
+
+If a class does not explicitly define its own copy-assignment operator, the compiler automatically generates one. This synthesized operator works member-by-member: if all the class’s non-static members can be copy-assigned, then the compiler assigns each member of the right-hand object to the corresponding member of the left-hand object using the copy-assignment operator for that member’s type. However, if any member cannot be copy-assigned, the synthesized operator becomes implicitly deleted and cannot be used. Array members are handled element-by-element. Finally, the synthesized operator returns a reference to the left-hand object, just like a user-defined assignment operator would.
+
+Key ideas
+- The compiler automatically generates a copy-assignment operator if the class doesn’t define one.
+- It performs member-wise assignment, using the copy-assignment operator of each member’s type.
+- If any member type cannot be copy-assigned, the synthesized operator is deleted.
+- Arrays are assigned element by element.
+- The operator returns *this, i.e., a reference to the left-hand object.
+
+````cpp
+// equivalent to
+Sales_data& Sales_data::operator=(const Sales_data &rhs) {
+    bookNo = rhs.bookNo; // calls string::operator=
+    units_sold = rhs.units_sold; // uses the built-in int assignment
+    revenue = rhs.revenue; // uses the built-in double assignment
+    return *this; // returns a reference to this object
+}
+````
+<i>Example: When we copy a Sales_data object, we may want to copy the
+number of units sold and the revenue, but to keep the book number
+unchanged</i>
+
+````cpp
+Sales_data& Sales_data::operator=(const Sales_data &rhs)
+{
+    units_sold = rhs.units_sold;
+    revenue = rhs.revenue;
+    return *this;
+}
+````
+
+The copy-assignment operator takes a parameter of the same class type:
+
+````cpp
+class Foo {
+public:
+    Foo& operator=(const Foo&);   // copy assignment
+};
+````
+
+To match the behavior of built-in types, assignment operators return a reference to the left-hand object <code>(*this).</code>
+
+## 11.2 Copy Initialization
+
+When we use <strong>direct initialization</strong>, we ask the compiler to choose the constructor whose parameters best match the arguments we supply. The process works exactly like ordinary function overload resolution: the compiler selects the constructor that fits the given arguments.<i> Direct initialization (T obj(args...))
+→ Constructor overload resolution chooses the best matching constructor.</i>
+
+When we use <strong>copy initialization</strong>, we ask the compiler to create the object by copying the value on the right-hand side. In this case, the compiler may apply implicit conversions to convert the right-hand operand into something that can be used to construct the object. After this conversion, the copy (r move) constructor is used to create the object. <i>Copy initialization (T obj = rhs)
+The compiler may perform implicit conversions on rhs, then constructs obj by copying (or moving) rhs.</i>
+
+A constructor is considered a <strong>copy constructor</strong> if its first (and typically only) parameter is a reference to the <strong>same class type</strong>, and any additional parameters have default values. For example:
+
+````cpp
+class Foo {
+public:
+    Foo();              // default constructor
+    Foo(const Foo&);    // copy constructor
+    // ...
+};
+````
+
+If a class does not define its own copy constructor, the compiler automatically attempts to synthesize one. <strong>Unlike the synthesized default constructor, the copy constructor is synthesized even if the class defines other constructors.</strong>
+
+The synthesized copy constructor performs a member-wise copy of its argument: each non-static data member of the source object is copied into the corresponding member of the new object. This constructor is generated only if all members of the class can themselves be copied. If any member cannot be copied, the synthesized copy constructor becomes implicitly deleted and cannot be used.
+
+
+The first parameter must be a reference, because passing by value would itself require copying—leading to infinite recursion. In practice, the parameter is almost always a reference to const, but the language does allow defining a copy constructor that takes a reference to non-const if needed.
+
+The way each member is copied depends entirely on its own type:
+
+How members are copied
+- <strong>Class-type members</strong>: Copied using their copy constructor.
+- <strong>Built-in type members</strong>: Copied directly (simple assignment).
+- <strong>Array members</strong>: Copied element by element.
+
+Thus, the synthesized copy constructor faithfully reproduces the structure of the object as long as all of its members support copying.
+
+<i>Key ideas</i>
+
+- The compiler synthesizes a copy constructor if none is provided.
+- This happens even when other constructors exist.
+- It performs member-wise copying.
+- A member’s own type determines how it is copied.
+- If any member is not copyable, the synthesized copy constructor is deleted.
+
+ <i style="color:#2E86C1;">Example</i>
+
+````cpp
+//Equivalent copy constructor signature:
+Sales_data(const Sales_data&);
+
+
+//Equivalent copy constructor implementation:
+Sales_data::Sales_data(const Sales_data &orig):
+    bookNo(orig.bookNo), // uses the string copy constructor
+    units_sold(orig.units_sold), // copies orig.units_sold
+    revenue(orig.revenue) // copies orig.revenue
+ { }
+````
+
+<i>REMARK — Container Elements Are Copies</i>
+
+When we use an object to initialize a container or when we insert an object into a container (like vector, list, map, etc.), the container stores a copy of the object’s value, not the object itself. This is exactly like passing an object to a function by value: the container element is an entirely separate object, independent from the original.
+
+There is no relationship between the container element and the object from which it was copied. Any later changes to the element inside the container do not affect the original object, and changes to the original object do not affect the element stored in the container.
+
+
+## 11.2 Destructor
+
+A destructor performs whatever actions the class designer wants to happen when an object is no longer needed. Most commonly, a destructor releases resources that the object acquired during its lifetime—such as dynamic memory, file handles, or network connections. Conceptually, the destructor does the inverse of what constructors do: while constructors initialize an object, the destructor cleans it up.
+
+Like constructors, destructors have a function body, but unlike constructors, they do not have an initializer list. The destruction of member subobjects happens implicitly and automatically, in the <strong>reverse order of their construction.</strong>
+
+<i>Key ideas</i>
+
+- Construction
+    - Members initialized before the constructor body.
+    - Members initialized in the order of declaration in the class.
+
+- Destruction
+    - Destructor body runs first.
+    - Members destroyed after, in the reverse order of initialization.
+
+### 11.2.1 Syntax
+
+A destructor is a special member function whose name is the class name prefixed with a tilde (~). It has no return type and takes no parameters, which means it cannot be overloaded. As a result, each class has exactly one destructor.
+
+````cpp
+class Foo {
+    public:
+        ~Foo();    // destructor
+        // ...
+};
+````
+
+The destructor is called automatically when an object goes out of scope or is deleted, allowing the class to clean up resources and perform finalization tasks.
+
+A destructor is invoked automatically whenever an object of its type is destroyed. This happens in several situations:
+- Local variables are destroyed when they go out of scope.
+- Data members are destroyed when the object they belong to is destroyed.
+- Elements of arrays or containers are destroyed when the container or array itself is destroyed.
+- Dynamically allocated objects are destroyed when delete is applied to a pointer to the object.
+- Temporary objects are destroyed at the end of the full expression in which they were created.
+
+Because destructors run automatically, programs can allocate resources without manually tracking all lifetimes. The only requirement is that delete must be applied when destroying objects created with new
+
+<i style="color:#2E86C1;">Example</i>
+
+````cpp
+{ //new scope
+ // p and p2 are smart pointers pointing to dynamically-allocated objects
+ shared_ptr<Sales_data> p = make_shared<Sales_data>();
+ auto p2 = p;
+ Sales_data item(*p);    // copy constructor copies *p into item
+ vector<Sales_data> vec; // local object
+ vec.push_back(*p2);     // copies the object to which p2 points
+}
+// exit local scope; destructor called on p, p2, item, and vec
+````
+<i>Note: destroying vec destroys the elements in vec and then the vector itself… and the same happens to shared pointers!
+</i>
+
+If a class does not define its own destructor, the compiler automatically generates a synthesized destructor for it. Just as with the synthesized copy constructor and copy-assignment operator, there are cases where the compiler cannot create a default destructor—typically when some members cannot be properly destroyed.
+
+The synthesized destructor behaves in a predictable way: after the destructor body finishes (which is empty if no destructor is defined), all non-static data members are automatically destroyed. This destruction happens as part of an implicit cleanup phase that follows the destructor body. Class-type members are destroyed by their own destructors, and built-in types are destroyed directly.
+
+For many classes, such as:
+
+````cpp
+class Sales_data {
+public:
+    ~Sales_data() { }   // no additional work—members destroy themselves
+    // ...
+};
+````
+the destructor needs no custom logic; the member-wise destruction is enough.
+
+However, if a class is intended to be used as a base class, it is almost always better to define its destructor as virtual, to ensure proper cleanup through base-class pointers:
+
+````cpp
+virtual ~Sales_data() { }
+````
+
+<i>Key ideas</i>
+
+- Compiler synthesizes a destructor if none is provided.
+- Some classes cannot use the synthesized version (e.g., non-destructible members).
+- Destructor body runs first; then members are destroyed implicitly.
+- Member-wise destruction happens automatically.
+- Base classes should generally have a virtual destructor to support polymorphism safely.
+
+## 11.3 Copy Control Default and Delete
+
+Classes have three fundamental operations that control how objects are copied and destroyed:
+
+1. The copy constructor.
+2. The copy-assignment operator.
+3. The destructor.
+
+Although C++ does not require a class to define all three, these operations are conceptually linked. In practice, if a class needs to define any one of them, it almost always needs to define all three. This is because classes that manage resources (dynamic memory, file handles, network connections, etc.) usually require consistent behavior for copying, assigning, and destroying objects. Treating these operations as a unit avoids inconsistency and bugs such as double deletion, shallow copies, or resource leaks.
+
+A practical way to decide whether a class must define its own copy-control members is to start by asking whether the class needs a custom destructor. The need for a destructor is usually easier to recognize—for example, when the class manages dynamic memory, file handles, or other external resources.
+
+<strong>If a class does require a destructor, then it almost certainly also needs its own copy constructor and copy-assignment operator. This ensures consistent behavior when objects are copied, assigned, and destroyed, preventing resource leaks, double deletion, or shallow copies.</strong>
+
+````cpp
+class vector {
+        unsigned sz; // the size
+        double* elem; // pointer to elements
+    public:
+        vector(unsigned s): sz{s}, elem{new double[s]} { }
+        ~vector() { delete[ ] elem; }
+        /* Synthesized copy constructor
+        vector(const & vector other) :
+        sz{other.sz},
+        elem{other.elem} { }
+        */
+        /* Other methods */
+        …
+};
+
+
+// ....  //
+
+void f(int n)
+{
+    vector v1(n);
+    vector v2(4);
+    v2 = v1; // assignment:
+    // by default, a copy of a class copies its members so sz and elem are copied
+}
+
+/*Disaster when we leave f()!
+v1’s elements are deleted twice (by the destructor) and we have also a memory
+leakage*/
+````
+
+### 11.3.1 Preventing Copies
+
+Some classes should not be copied or assigned because doing so would be unsafe or meaningless. For example, the iostream classes disable copying so that multiple objects don’t write to the same buffer. Simply omitting the copy constructor and copy-assignment operator is not enough—the compiler will synthesize them unless told otherwise.
+
+<strong>C++11 Solution: Deleted Functions</strong>
+
+To forbid copying, C++11 lets us mark the copy constructor and copy-assignment operator as deleted using <code>=</code> delete. Deleted functions cannot be called, and the compiler will not generate defaults for them.
+
+````cpp
+struct NoCopy {
+    NoCopy() = default;                 // allow default construction
+    NoCopy(const NoCopy&) = delete;     // no copying
+    NoCopy& operator=(const NoCopy&) = delete; // no assignment
+    ~NoCopy() = default;                // allow destruction
+};
+
+````
+
+### 11.4 Copy Control and Resource Management.
+
+Classes that manage resources outside the object (e.g., dynamic memory, file handles, network sockets) must define their own copy-control members. Before writing these operations, we must decide what copying an object of that type should mean. In practice, there are two strategies:
+
+1. Like-a-value semantics
+
+- The object behaves like a value:
+- Each object has its own independent state.
+- Copying creates a separate copy of the resource.
+- Changes to the copy do not affect the original, and vice versa.
+- Examples: std::string, std::vector.
+
+2. Like-a-pointer semantics 
+
+- The object behaves like a pointer:
+- Copies share the same underlying resource.
+- The state is effectively shared among all copies.
+- Changes to one object are visible to all others that share the resource. 
+- Examples: shared_ptr, custom reference-counted resource handles.
+
+<i>Key ideas</i>
+
+- Resource-managing classes must define custom copy behavior.
+- Two design choices: value semantics (deep copy) or pointer semantics (shared state).
+- Like-a-value → independent copies.
+- Like-a-pointer → shared resource; modifying one affects all.
+
+In other terminology
+
+1. <strong>Shallow copy ⟶ Like-a-pointer semantics</strong>
+
+- Only the pointer is copied.
+- Both objects now refer to the same underlying resource.
+- Modifying one affects the other.
+- This is what pointers and references naturally do.
+- Equivalent to like-a-pointer (shared state).
+
+2. <strong>Deep copy ⟶ Like-a-value semantics</strong>
+- Copies the actual data, not just the pointer.
+- The two objects own separate resources.
+- Modifying one has no effect on the other.
+- This is what vector, string, and most standard containers do.
+- Equivalent to like-a-value (independent state).
+
+![Copy Control](Images/copy_control.png)
+
+ <i style="color:#2E86C1;">Example: Like-a-pointer</i>
+
+````cpp
+class StrLPVector {
+    public:
+        typedef std::vector<std::string>::size_type size_type;
+        StrLPVector();
+        StrLPVector(std::initializer_list<std::string> il);
+        size_type size() const { return data->size(); }
+        bool empty() const { return data->empty(); }
+        // add and remove elements
+        void push_back(const std::string &t) { data->push_back(t); }
+        void pop_back() { data->pop_back(); };
+        // element access
+        std::string& front() {return data->front();}
+        std::string& back() {return data->back();}
+        private:
+        std::shared_ptr<std::vector<std::string>> data;
+        // write msg if data[i] isn't valid
+};
+````
+<i style="color:#2E86C1;">Example: Like-a-value</i>
+
+````cpp
+class StrLPVector {
+public:
+    typedef std::vector<std::string>::size_type size_type;
+    StrLPVector();
+    StrLPVector(std::initializer_list<std::string> il);
+    size_type size() const { return data.size(); }
+    bool empty() const { return data.empty(); }
+    // add and remove elements
+    void push_back(const std::string &t) { data.push_back(t); }
+    void pop_back() { data.pop_back(); };
+    // element access
+    std::string& front() {return data.front();}
+    std::string& back() {return data.back();}
+    private:
+    std::vector<std::string> data;
+    // write msg if data[i] isn't valid
+}; 
+````
+
+## 11.5 Implicit Class-Type Conversions
+
+C++ automatically performs many conversions among built-in types, and classes can participate in this mechanism as well. Any constructor that can be called with a single argument defines an implicit conversion from that argument’s type to the class type. Such constructors are known as converting constructors because they allow the compiler to convert values of one type into objects of the class without requiring an explicit call.
+
+In other words, a single-parameter constructor lets the compiler treat:
+
+````cpp
+T x = value;   // implicit conversion using T(value)
+````
+as if you had explicitly constructed a T object from value.
+
+<i>Key ideas</i>
+
+- C++ performs implicit conversions for built-in types; classes can define their own.
+- A constructor with one parameter automatically becomes a converting constructor.
+- This constructor defines an implicit conversion from its argument type → to the class type.
+- This happens even if we don’t intend it — unless marked explicit (covered later).
+
+<i style="color:#2E86C1;">Example</i>
+
+````cpp
+class MatlabVector {
+    vector<double> elem;
+    public:
+        MatlabVector(unsigned sz): elem(sz, 0.) {}
+        MatlabVector() = default;
+        double& operator[](unsigned n);
+        size_t size() const; // returns the number of elements
+        MatlabVector operator+(const MatlabVector& other) const;
+        MatlabVector operator*(double scalar) const;
+};
+````
+
+A constructor that takes a single argument implicitly defines a conversion from that argument’s type to the class type. In this example, the constructor of MatlabVector that takes an unsigned sz allows the compiler to convert an unsigned into a MatlabVector automatically.
+
+This means the following is valid:
+
+````cpp
+MatlabVector v1 = 7;    // v1 becomes a vector of size 7, filled with 0s
+````
+And functions that expect a MatlabVector can also be called with an unsigned:
+
+````cpp
+void do_something(MatlabVector v);
+
+do_something(7);        // implicit conversion: constructs a MatlabVector of size 7
+````
+
+While this may be intentional, it is also very error-prone: calling a function with a number might accidentally construct a temporary vector, leading to unexpected behavior, performance issues, or bugs.
+
+Unless this is exactly the behavior we want, such implicit conversions should generally be avoided (by marking the constructor explicit—covered later).
+
+<i>Key ideas</i>
+
+- A single-parameter constructor creates an implicit conversion.
+- <code>unsigned</code> → <code>MatlabVector</code> conversion happens automatically.
+- You can pass an unsigned where a MatlabVector is expected.
+- This may be convenient but is often dangerous and unintended.
+
+To prevent this, we can mark such constructors with the keyword explicit. An explicit constructor cannot be used for implicit conversions; it can only be called directly.
+
+````cpp
+class MatlabVector {
+public:
+    explicit MatlabVector(unsigned sz) : elem(sz, 0.) {}
+};
+With this change:
+````
+
+````cpp
+MatlabVector v1 = 7;     // ❌ error: implicit conversion is not allowed
+do_something(7);         // ❌ error: cannot convert unsigned → MatlabVector
+But the following still works:
+````
+
+````cpp
+MatlabVector v1(7);      // ✔ direct initialization is allowed
+do_something(MatlabVector(7));  // ✔ explicit construction
+````
+
+<i>Key ideas</i>
+
+- <code>explicit</code> disables implicit conversions from the constructor’s parameter type.
+- The constructor can still be used with direct initialization.
+- Use <code>explicit</code> whenever implicit conversions would be surprising or unsafe.
+
+<code>explicit</code> Constructors Can Be Used Only with Direct Initialization
+
+Implicit conversions occur in contexts such as copy initialization (T obj = value;).
+When a constructor is marked explicit, it cannot be used in those contexts.
+Instead, it can only be used with direct initialization.
+
+````cpp
+MatlabVector v1(10);   // ✔ OK: direct initialization
+MatlabVector v2 = 10;  // ❌ Error: copy initialization cannot use an explicit constructor
+````
+
+Using explicit Constructors Manually
+
+Even though the compiler will not use an explicit constructor for implicit conversions, we can still call the constructor explicitly whenever we want to force a conversion.
+
+````cpp
+MatlabVector v1(10);
+for (size_t j = 0; j < v1.size(); ++j)
+    v1[j] = j;
+````
+
+Here, an expression like:
+
+````cpp
+v1 += 10;     // ❌ error: cannot implicitly convert unsigned → MatlabVector
+````
+
+fails because 10 cannot be implicitly turned into a MatlabVector.
+
+However, we can explicitly construct a temporary object and pass it:
+
+````cpp
+v1 += MatlabVector(10);   // ✔ OK: explicit conversion using direct initialization
+````
+
+This works because we are calling the constructor ourselves, not asking the compiler to perform an implicit conversion.
   _________________________________________________________
   COPY CONTRUCTURES Copy Constructors and Destructors
  Matteo Rossi
