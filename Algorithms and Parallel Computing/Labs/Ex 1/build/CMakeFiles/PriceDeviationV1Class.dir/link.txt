@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/PriceDeviationV1Class.dir/main.cpp.o -o PriceDeviationV1Class 
